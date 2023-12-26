@@ -1,0 +1,7 @@
+node_modules
+bin
+public/*
+
+!public/default.png
+
+.env
