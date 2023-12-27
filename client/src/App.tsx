@@ -1,18 +1,16 @@
-import { Button } from "./components/ui/button";
-import { Link, useLocation } from "react-router-dom";
-import { getGoogleUrl } from "./utils/get-google-url";
+import { Route, Routes } from "react-router-dom";
+import RootLayout from "./pages/layout";
+import LandingPage from "./pages/home/landing";
+import NotFound from "./pages/not-found";
 
 function App() {
-  const location = useLocation();
-  const from = location.pathname;
-
   return (
-    <div>
-      <Link to={getGoogleUrl(from)}>
-        <Button>Continue with dooglle</Button>
-      </Link>
-      <pre>{from}</pre>
-    </div>
+    <Routes>
+      <Route path="/" element={<RootLayout />}>
+        <Route index element={<LandingPage />} />
+        <Route path="*" element={<NotFound />} />
+      </Route>
+    </Routes>
   );
 }
 
