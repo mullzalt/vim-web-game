@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/providers/auth-provider";
 import { toast } from "sonner";
 
 export default function LandingPage() {
+  const { user } = useAuth();
   return (
-    <div>
+    <div className="h-[150vh]">
       <Button
         onClick={() =>
           toast("Test", {
@@ -21,6 +23,7 @@ export default function LandingPage() {
       >
         Test toast
       </Button>
+      {user && user.name}
     </div>
   );
 }
