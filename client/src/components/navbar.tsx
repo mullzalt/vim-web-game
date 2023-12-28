@@ -6,7 +6,7 @@ import { UserAvatar } from "./auth/user-avatar";
 export function Navbar() {
   const { user } = useAuth();
   return (
-    <nav className="w-full sticky top-0 h-16 bg-background/80 flex items-center px-4 justify-between">
+    <nav className="w-full z-50 sticky top-0 h-16 bg-background/80 flex items-center px-4 justify-between">
       <div className="grow">vi-word.</div>
       <div className="flex gap-2 items-center">
         {!user && <SignInAction />}
