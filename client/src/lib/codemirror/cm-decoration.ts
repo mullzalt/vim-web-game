@@ -42,12 +42,12 @@ class lineWidget extends WidgetType {
     let wrap = document.createElement("span");
     wrap.setAttribute("aria-hidden", "true");
     wrap.className =
-      "text-white text-sm border-dashed border-t-2 w-full flex justify-end items-center px-4";
+      "text-white text-sm border-dashed border-t-2 w-full flex justify-start items-center px-1";
 
     let indicator = document.createElement("span");
     indicator.textContent = this.text;
     indicator.className =
-      "border border-green text-green bg-slate-800 p-0.5 rounded-sm absolute";
+      "border border-green text-green-200 bg-slate-800 p-0.5 rounded-sm";
     wrap.appendChild(indicator);
     return wrap;
   }

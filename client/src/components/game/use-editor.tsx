@@ -140,6 +140,8 @@ export function useEditor(props: UseEditor) {
       searchKeymap: false,
       foldGutter: false,
       closeBracketsKeymap: false,
+      highlightSelectionMatches: false,
+      highlightActiveLine: false,
     },
   });
 

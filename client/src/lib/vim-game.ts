@@ -5,12 +5,13 @@ type GameSelection = { anchor: number; head: number };
 type ActionSelect = {
   action: "select";
   selection: GameSelection;
+  intendedKeystrokes: number;
 };
 
 type ActionModify = {
   action: "modify";
   after: string;
-  diffBy: "any" | "word" | "line";
+  intendedKeystrokes: number;
 };
 
 export type GameAction = ActionSelect | ActionModify;
@@ -22,4 +23,19 @@ export interface GameModule {
   initialCode: string;
   actions: GameAction[];
   lang: LanguageName | null;
+}
+
+export interface GameStatisticData {
+  times: number[];
+  keystrokes: number[];
+  ksScores: number[];
+  timeScores: number[];
+  totalScore: number;
+  totalKsScore: number;
+  totalTimeScore: number;
+  totalTime: number;
+  totalKeystrokes: number;
+  timeGrade: number;
+  keyStrokeGrade: number;
+  overallGrade: number;
 }

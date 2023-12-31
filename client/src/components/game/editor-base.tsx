@@ -1,10 +1,4 @@
-import {
-  forwardRef,
-  memo,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-} from "react";
+import { forwardRef, memo, useImperativeHandle, useRef } from "react";
 import {
   EditorView,
   EditorState,
@@ -13,11 +7,7 @@ import {
 } from "@uiw/react-codemirror";
 import equal from "fast-deep-equal";
 import { UseEditor, useEditor } from "./use-editor";
-import {
-  LanguageName,
-  langs,
-  loadLanguage,
-} from "@uiw/codemirror-extensions-langs";
+import { LanguageName, loadLanguage } from "@uiw/codemirror-extensions-langs";
 import { Vim } from "@replit/codemirror-vim";
 
 import { cn } from "@/lib/utils";
@@ -39,6 +29,7 @@ interface VimEditorProps
 export interface VimEditorRef {
   editor?: HTMLDivElement | null;
   state?: EditorState;
+  extensions?: Extension[];
   view?: EditorView;
 }
 
@@ -141,8 +132,13 @@ const ReactVimEditor = forwardRef<VimEditorRef, VimEditorProps>(
 
     useImperativeHandle(
       ref,
-      () => ({ editor: editor.current, state: state, view: view }),
-      [editor, container, state, view],
+      () => ({
+        editor: editor.current,
+        state: state,
+        view: view,
+        extensions: extensions,
+      }),
+      [editor, container, state, view, extensions],
     );
 
     // check type of value

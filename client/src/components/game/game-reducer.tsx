@@ -5,9 +5,6 @@ export const enum GAME_ACTION {
   SET_CURRENT_SAFE_CODE,
   ADD_TIME,
   ADD_KEYSTROKE,
-  ASSIGN_TIMES,
-  ASSIGN_KEYSTROKES,
-  ADD_SCORE,
 }
 
 type GameState = {
@@ -15,7 +12,8 @@ type GameState = {
   currentSafeCode: string;
   times: number[];
   keystrokes: number[];
-  score: number;
+  ksScore: number[];
+  timeScore: number[];
   currentTime: number;
   currentKeystrokes: number;
   isPlaying: boolean;
@@ -33,7 +31,8 @@ export function initialGameState(
     currentSafeCode: code,
     times: [],
     keystrokes: [],
-    score: 0,
+    ksScore: [],
+    timeScore: [],
     currentTime: 0,
     currentKeystrokes: 0,
     isPlaying: false,
@@ -47,8 +46,18 @@ export function initialGameState(
 
 type GameAction = {
   type: GAME_ACTION;
-  payload?: Partial<GameState>;
+  payload?: Partial<GameState> & { intendedKeystrokes?: number };
 };
+
+function calculateKsScore(usedKeystorke: number, intendedKeystrokes: number) {
+  return Math.floor((intendedKeystrokes / usedKeystorke) * 100);
+}
+
+function calculateTimeScore(usedTime: number, intendedKeystrokes: number) {
+  if (usedTime <= 0) usedTime = 1;
+  const intendedTime = Math.floor(intendedKeystrokes * 15);
+  return Math.floor((intendedTime / usedTime) * 100);
+}
 
 export const gameReducer: React.Reducer<GameState, GameAction> = (
   state,
@@ -60,19 +69,50 @@ export const gameReducer: React.Reducer<GameState, GameAction> = (
       return { ...state, isPlaying: true };
     }
     case GAME_ACTION.RESTART: {
-      return action.payload ? { ...state, ...action.payload } : state;
+      let payload = {};
+      if (action.payload) {
+        const { intendedKeystrokes, ...rest } = action.payload;
+        payload = rest;
+      }
+      return action.payload ? { ...state, ...payload } : state;
     }
     case GAME_ACTION.NEXT: {
       if (!state.isPlaying) return state;
+
+      const intendedKeystrokes: number =
+        action.payload?.intendedKeystrokes || 10;
+      const {
+        times,
+        currentTime,
+        keystrokes,
+        currentKeystrokes,
+        ksScore,
+        timeScore,
+      } = state;
+      let returnState = {
+        ...state,
+        times: times.concat(currentTime),
+        currentTime: 0,
+        ksScore: ksScore.concat(
+          calculateKsScore(currentKeystrokes, intendedKeystrokes),
+        ),
+        timeScore: timeScore.concat(
+          calculateTimeScore(currentTime, intendedKeystrokes),
+        ),
+        keystrokes: keystrokes.concat(currentKeystrokes),
+        currentKeystrokes: 0,
+        currentProgress: state.currentProgress + 1,
+      };
+
       if (state.currentProgress >= state.totalProgress - 1) {
         return {
-          ...state,
-          currentProgress: state.currentProgress + 1,
+          ...returnState,
           isPlaying: false,
           isWinning: true,
         };
       }
-      return { ...state, currentProgress: state.currentProgress + 1 };
+
+      return returnState;
     }
     case GAME_ACTION.ADD_TIME: {
       if (!state.isPlaying) return state;
@@ -87,25 +127,6 @@ export const gameReducer: React.Reducer<GameState, GameAction> = (
     case GAME_ACTION.ADD_KEYSTROKE: {
       if (!state.isPlaying) return state;
       return { ...state, currentKeystrokes: state.currentKeystrokes + 1 };
-    }
-    case GAME_ACTION.ADD_SCORE: {
-      if (!state.isPlaying) return state;
-      if (!action.payload?.score) return state;
-      return { ...state, score: state.score + action.payload.score };
-    }
-    case GAME_ACTION.ASSIGN_TIMES: {
-      if (!state.isPlaying) return state;
-      const { times, currentTime } = state;
-      return { ...state, times: times.concat(currentTime), currentTime: 0 };
-    }
-    case GAME_ACTION.ASSIGN_KEYSTROKES: {
-      if (!state.isPlaying) return state;
-      const { keystrokes, currentKeystrokes } = state;
-      return {
-        ...state,
-        keystrokes: keystrokes.concat(currentKeystrokes),
-        currentKeystrokes: 0,
-      };
     }
     default: {
       return state;
