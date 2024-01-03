@@ -11,17 +11,108 @@ datasource db {
 }
 
 model User {
-  id       String  @id @default(uuid())
-  name     String
-  email    String  @unique
-  password String
-  role     String  @default("user")
-  photo    String  @default("default.png")
-  verified Boolean @default(false)
-  provider String  @default("local")
+  id    String        @id @default(uuid())
+  email String        @unique
+  role  RoleEnumType? @default(user)
 
-  createdAt DateTime
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  Accounts       Account[]
+  Games          Game[]
+  Scores         Score[]
+  GameCollection GameCollection[]
+  Profile        Profile?
 
   @@map(name: "users")
+}
+
+enum RoleEnumType {
+  user
+  admin
+}
+
+model Profile {
+  id         String   @id @default(uuid())
+  userId     String   @unique
+  username   String
+  photo      String?
+  exp        Int
+  totalScore Int      @map("total_score")
+  totalGrade Int      @map("total_grade")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  User       User     @relation(fields: [userId], references: [id])
+
+  @@map("profiles")
+}
+
+model Account {
+  id                String   @id @default(uuid())
+  userId            String   @map("user_id")
+  provider          String
+  providerAccountId String   @unique @map("provide_account_id")
+  refreshToken      String?
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  user              User     @relation(fields: [userId], references: [id])
+
+  @@map(name: "accounts")
+}
+
+model Game {
+  id          String  @id @default(uuid())
+  createdBy   String  @map("user_id")
+  title       String
+  initialCode String  @map("initial_code")
+  desc        String?
+  shortDesc   String? @map("short_desc")
+  actions     Json
+  lang        String?
+
+  intendedKeystrokes Int @map("intended_keystrokes")
+  favoriteCount      Int @map("favorite_count")
+  playCount          Int @map("play_count")
+
+  archived Boolean @default(true)
+
+  creator User @relation(fields: [createdBy], references: [id])
+
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+  Scores      Score[]
+  Collections GameCollection[]
+
+  @@map(name: "games")
+}
+
+model GameCollection {
+  id         String  @id @default(uuid())
+  userId     String
+  title      String
+  desc       String
+  isTutorial Boolean @default(false) @map("is_tutorial")
+  Games      Game[]
+  User       User    @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+}
+
+model Score {
+  id         String @id @default(uuid())
+  userId     String
+  gameId     String
+  times      Int[]
+  keystrokes Int[]
+  totalScore Int
+  grade      Int
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id])
+  game Game @relation(fields: [gameId], references: [id])
+
+  @@map(name: "scores")
 }

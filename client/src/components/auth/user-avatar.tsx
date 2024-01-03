@@ -28,18 +28,28 @@ export function UserAvatar() {
     <Sheet>
       <SheetTrigger asChild>
         <Avatar className="hover:cursor-pointer hover:opacity-80">
-          <AvatarImage src={user.photo} alt={`@${user.name}`} />
-          <AvatarFallback>{user.name[0].toUpperCase()}</AvatarFallback>
+          <AvatarImage
+            src={user.Profile.photo}
+            alt={`@${user.Profile.username}`}
+          />
+          <AvatarFallback>
+            {user.Profile.username[0].toUpperCase()}
+          </AvatarFallback>
         </Avatar>
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>
           <Avatar className="h-16 w-16 border-2 border-foreground">
-            <AvatarImage src={user.photo} alt={`@${user.name}`} />
-            <AvatarFallback>{user.name[0].toUpperCase()}</AvatarFallback>
+            <AvatarImage
+              src={user.Profile.photo}
+              alt={`@${user.Profile.username}`}
+            />
+            <AvatarFallback>
+              {user.Profile.username[0].toUpperCase()}
+            </AvatarFallback>
           </Avatar>
           <div className="flex flex-col -space-y-1">
-            <div className="text-xl font-semibold">{user.name}</div>
+            <div className="text-xl font-semibold">{user.Profile.username}</div>
             <div className="text-sm text-muted">{user.email}</div>
           </div>
         </SheetHeader>

@@ -1,5 +1,42 @@
 import { useState, useEffect, useCallback } from "react";
 import axios, { AxiosRequestConfig, AxiosError } from "axios";
+import Cookie from "js-cookie";
+
+const API_URL = import.meta.env.VITE_SERVER_ENDPOINT;
+
+const api = axios.create({
+  baseURL: API_URL,
+  headers: { "Content-Type": "application/json" },
+  withCredentials: true,
+});
+
+const reqIntercept = api.interceptors.request.use(
+  (config) => {
+    if (!config.headers["Authorization"]) {
+      config.headers["Authorization"] = `Bearer ${Cookie.get("access_token")}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error),
+);
+
+const resIntercept = api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const prevRequest = error?.config;
+    if (error?.response?.status === 401 && !prevRequest?.sent) {
+      prevRequest.sent = true;
+      const newAccessToken = await api
+        .get(`/api/auth/refresh`, {
+          withCredentials: true,
+        })
+        .then((res) => res.data?.access_token);
+      prevRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+      return api(prevRequest);
+    }
+    return Promise.reject(error);
+  },
+);
 
 export function useApiCallback<T>(
   url: string,
@@ -15,8 +52,6 @@ export function useApiCallback<T>(
     status: number | undefined;
   },
 ] {
-  const API_URL = import.meta.env.VITE_SERVER_ENDPOINT;
-
   const [data, setData] = useState<T | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
@@ -24,14 +59,12 @@ export function useApiCallback<T>(
   const [status, setStatus] = useState<number | undefined>();
 
   const fetchAPI = useCallback(async () => {
-    setIsLoading(true);
-
-    await axios<{ data: T }>(`${API_URL}/api${url}`, options)
+    await api<{ data: T }>(`/api/${url}`, options)
       .then((res) => {
         setData(res.data.data);
         setStatus(res.status);
       })
-      .catch((err: AxiosError<{ message: string }>) => {
+      .catch(async (err: AxiosError<{ message: string }>) => {
         setIsError(true);
         setError(
           err?.response?.data?.message ||
@@ -50,8 +83,6 @@ export function useApiCallback<T>(
 }
 
 export function useApi<T>(url: string, options?: AxiosRequestConfig) {
-  const API_URL = import.meta.env.VITE_SERVER_ENDPOINT;
-
   const [data, setData] = useState<T | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isError, setIsError] = useState<boolean>(false);
@@ -59,14 +90,12 @@ export function useApi<T>(url: string, options?: AxiosRequestConfig) {
   const [status, setStatus] = useState<number | undefined>();
 
   const fetchAPI = useCallback(async () => {
-    setIsLoading(true);
-
-    await axios<{ data: T }>(`${API_URL}/api${url}`, options)
+    await api<{ data: T }>(`/api/${url}`, options)
       .then((res) => {
         setData(res.data.data);
         setStatus(res.status);
       })
-      .catch((err: AxiosError<{ message: string }>) => {
+      .catch(async (err: AxiosError<{ message: string }>) => {
         setIsError(true);
         setError(
           err?.response?.data?.message ||
@@ -82,7 +111,10 @@ export function useApi<T>(url: string, options?: AxiosRequestConfig) {
 
   useEffect(() => {
     fetchAPI();
-    return () => {};
+    return () => {
+      api.interceptors.request.eject(reqIntercept);
+      api.interceptors.response.eject(resIntercept);
+    };
   }, []);
 
   return { data, isLoading, isError, error, status };

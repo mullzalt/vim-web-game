@@ -1,9 +1,13 @@
 export interface UserData {
   id: string;
-  name: string;
   email: string;
-  role: string;
-  photo: string;
-  provider: string;
-  verified: boolean;
+  Profile: {
+    id: string;
+    userId: string;
+    username: string;
+    photo: string;
+    exp: number;
+    totalScore: number;
+    totalGrade: number;
+  };
 }

@@ -5,60 +5,78 @@ import morgan from "morgan";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
-//routes
-import userRouter from "./routes/user.route";
-import authRouter from "./routes/auth.route";
-import sessionRouter from "./routes/session.route";
+import { prisma } from "./utils/prisma";
+import validateEnv from "./utils/validate-env";
+import config from "config";
+import { RequestError } from "./utils/error";
+import routes from "./routes/routes";
 
-import connectDB from "./utils/prisma";
+validateEnv();
 
 const app = express();
 
-app.use(express.json({ limit: "10kb" }));
-app.use(cookieParser());
+async function bootstrap() {
+  app.use(express.json({ limit: "10kb" }));
 
-if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
+  app.use(cookieParser());
 
-app.use("/api/images", express.static(path.join(__dirname, "../public")));
+  if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
 
-const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN as unknown as string;
-app.use(
-  cors({
-    credentials: true,
-    origin: [FRONTEND_ORIGIN],
-  }),
-);
+  app.use("/api/images", express.static(path.join(__dirname, "../public")));
 
-app.use("/api/users", userRouter);
-app.use("/api/auth", authRouter);
-app.use("/api/sessions", sessionRouter);
+  app.use(
+    cors({
+      origin: [config.get<string>("origin")],
+      credentials: true,
+    }),
+  );
 
-app.get("/api/checkhealth", (req: Request, res: Response) => {
-  res.status(200).json({
-    status: "success",
-    message: "test",
+  app.use("/api", routes);
+
+  app.get("/api/checkhealth", (_, res: Response) => {
+    return res.status(200).json({
+      status: "success",
+      message: "App is alive",
+    });
   });
-});
 
-// UnKnown Routes
-app.all("*", (req: Request, res: Response, next: NextFunction) => {
-  const err = new Error(`Route ${req.originalUrl} not found`) as any;
-  err.statusCode = 404;
-  next(err);
-});
-
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  err.status = err.status || "error";
-  err.statusCode = err.statusCode || 500;
-
-  res.status(err.statusCode).json({
-    status: err.status,
-    message: err.message,
+  app.all("*", (req: Request, res: Response, next: NextFunction) => {
+    return next(new RequestError(404, `Could not find ${req.originalUrl}`));
   });
-});
 
-const port = process.env.PORT || 8080;
-app.listen(port, () => {
-  console.log(`Server started on port: ${port}`);
-  connectDB();
-});
+  app.use(
+    (err: RequestError, req: Request, res: Response, next: NextFunction) => {
+      err.status = err.status || "error";
+      err.status_code = err.status_code || 500;
+      const stack =
+        process.env.NODE_ENV === "development" ? err.stack : undefined;
+
+      return res.status(err.status_code).json({
+        status: err.status,
+        message: err.message,
+        stack,
+      });
+    },
+  );
+
+  try {
+    await prisma.$connect();
+    console.log("Connected to database");
+  } catch (error) {
+    console.log(error);
+    process.exit(1);
+  }
+
+  const port = config.get<number>("port");
+  app.listen(port, () => {
+    console.log(`Server running on port: ${port}`);
+  });
+}
+
+bootstrap()
+  .catch((err) => {
+    throw err;
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

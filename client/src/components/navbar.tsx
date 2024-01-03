@@ -3,14 +3,16 @@ import { SignInAction } from "./auth/sign-in";
 import { Avatar } from "./ui/avatar";
 import { UserAvatar } from "./auth/user-avatar";
 
-export function Navbar() {
+export function Navbar({ action }: { action?: React.ReactNode }) {
   const { user } = useAuth();
   return (
-    <nav className="w-full z-50 sticky top-0 h-16 bg-background/80 flex items-center px-4 justify-between">
-      <div className="grow">vi-word.</div>
+    <nav className="w-full z-50 backdrop-blur sticky top-0 h-16 bg-border/80 flex items-center px-4 justify-between">
+      <div className="grow flex items-center">
+        {action}
+        <span>vi-word.</span>
+      </div>
       <div className="flex gap-2 items-center">
-        {!user && <SignInAction />}
-        {user ? <UserAvatar /> : "not loggen in"}
+        {user ? <UserAvatar /> : <SignInAction />}
       </div>
     </nav>
   );

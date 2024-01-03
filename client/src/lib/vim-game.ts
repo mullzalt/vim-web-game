@@ -19,10 +19,11 @@ export type GameAction = ActionSelect | ActionModify;
 export interface GameModule {
   title: string;
   desc: string;
-  hints: string[];
+  // hints: string[];
   initialCode: string;
   actions: GameAction[];
   lang: LanguageName | null;
+  shortDesc: string;
 }
 
 export interface GameStatisticData {

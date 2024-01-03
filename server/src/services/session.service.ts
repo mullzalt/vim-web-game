@@ -1,12 +1,6 @@
 import axios from "axios";
 import qs from "qs";
-
-const GOOGLE_OAUTH_CLIENT_ID = process.env
-  .GOOGLE_OAUTH_CLIENT_ID as unknown as string;
-const GOOGLE_OAUTH_CLIENT_SECRET = process.env
-  .GOOGLE_OAUTH_CLIENT_SECRET as unknown as string;
-const GOOGLE_OAUTH_REDIRECT = process.env
-  .GOOGLE_OAUTH_REDIRECT as unknown as string;
+import config from "config";
 
 interface GoogleOauthToken {
   access_token: string;
@@ -26,9 +20,9 @@ export const getGoogleOauthToken = async ({
 
   const options = {
     code,
-    client_id: GOOGLE_OAUTH_CLIENT_ID,
-    client_secret: GOOGLE_OAUTH_CLIENT_SECRET,
-    redirect_uri: GOOGLE_OAUTH_REDIRECT,
+    client_id: config.get<string>("google_oauth_client_id"),
+    client_secret: config.get<string>("google_oauth_client_secret"),
+    redirect_uri: config.get<string>("google_oauth_redirect"),
     grant_type: "authorization_code",
   };
   try {
