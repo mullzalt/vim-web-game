@@ -26,6 +26,7 @@ import { ViewUpdate } from "@uiw/react-codemirror";
 import { Label } from "../ui/label";
 import { TooltipMain } from "../tooltip-main";
 import { Input } from "../ui/input";
+import { LanguageName } from "@uiw/codemirror-extensions-langs";
 
 interface ModuleActionMakerProps extends GameModule {
   onSave?: (actions: GameAction[]) => void;
@@ -287,7 +288,7 @@ export function ModuleActionMaker(props: ModuleActionMakerProps) {
             extensions={[decorationField, tooltipExtension]}
             onUpdate={handleActionUpdate}
             value={state.current_code_after || initial_code}
-            lang={lang}
+            lang={lang as LanguageName}
           />
           <VimEditor
             ref={previewRef}
@@ -297,7 +298,7 @@ export function ModuleActionMaker(props: ModuleActionMakerProps) {
             height="40vh"
             className="text-base opacity-80"
             value={initial_code}
-            lang={lang}
+            lang={lang as LanguageName}
           />
         </div>
 
@@ -353,19 +354,6 @@ export function ModuleActionMaker(props: ModuleActionMakerProps) {
           ))}
         </div>
       </div>
-
-      <pre className="text-wrap">
-        {JSON.stringify(
-          {
-            ...state,
-            actions: undefined,
-            initial_code: undefined,
-            current_action,
-          },
-          null,
-          2,
-        )}
-      </pre>
     </Fragment>
   );
 }

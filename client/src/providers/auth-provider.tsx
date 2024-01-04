@@ -24,12 +24,13 @@ const AuthProviderContext = React.createContext(initialState);
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = React.useState<UserData | null>(null);
+  const [isFetching, setIsFetching] = React.useState(true);
   const [getUser, api] = useApiCallback<UserData>("/me", {
     withCredentials: true,
   });
   const { data, isLoading } = api;
 
-  const [signOut, { isLoading: isFetching }] = useApiCallback(
+  const [signOut] = useApiCallback(
     "/auth/signout",
     { withCredentials: true },
     () => {
@@ -39,27 +40,43 @@ export function AuthProvider({ children }: AuthProviderProps) {
   );
 
   React.useEffect(() => {
-    if (!Cookie.get("logged_in")) return;
+    if (!Cookie.get("logged_in")) {
+      setIsFetching(false);
+      return;
+    }
     getUser();
   }, []);
 
   React.useEffect(() => {
     if (!data) return;
+
     setUser(data);
   }, [data]);
+
+  React.useEffect(() => {
+    if (!Cookie.get("logged_in")) {
+      setIsFetching(false);
+      return;
+    }
+    setIsFetching(isLoading);
+  }, [isLoading]);
 
   const value: AuthProviderState = React.useMemo(
     () => ({
       user,
-      isFetching: isLoading || isFetching,
+      isFetching,
       signOut,
     }),
-    [user, isLoading, isFetching, signOut],
+    [user, isFetching, signOut],
   );
 
   return (
     <AuthProviderContext.Provider value={value}>
-      {isLoading ? <Spinner className="min-h-screen opacity-40" /> : children}
+      {isFetching ? (
+        <Spinner className="min-h-screen bg-background " />
+      ) : (
+        children
+      )}
     </AuthProviderContext.Provider>
   );
 }

@@ -12,6 +12,7 @@ export async function findUniqueUser(where: Prisma.UserWhereUniqueInput) {
       id: true,
       email: true,
       Profile: true,
+      role: true,
     },
   });
 }

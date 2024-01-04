@@ -43,7 +43,7 @@ export function useApiCallback<T>(
   options?: AxiosRequestConfig,
   callback?: () => void,
 ): [
-  () => void,
+  (args?: AxiosRequestConfig) => void,
   {
     data: T | null;
     isLoading: boolean;
@@ -53,19 +53,21 @@ export function useApiCallback<T>(
   },
 ] {
   const [data, setData] = useState<T | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isError, setIsError] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<number | undefined>();
 
-  const fetchAPI = useCallback(async () => {
-    await api<{ data: T }>(`/api/${url}`, options)
+  const fetchAPI = useCallback(async (args?: AxiosRequestConfig) => {
+    setIsLoading(true);
+    await api<{ data: T }>(`/api/${url}`, { ...options, ...args })
       .then((res) => {
         setData(res.data.data);
         setStatus(res.status);
       })
       .catch(async (err: AxiosError<{ message: string }>) => {
         setIsError(true);
+        setIsLoading(false);
         setError(
           err?.response?.data?.message ||
             err?.message ||
@@ -84,12 +86,13 @@ export function useApiCallback<T>(
 
 export function useApi<T>(url: string, options?: AxiosRequestConfig) {
   const [data, setData] = useState<T | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isError, setIsError] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<number | undefined>();
 
   const fetchAPI = useCallback(async () => {
+    setIsLoading(true);
     await api<{ data: T }>(`/api/${url}`, options)
       .then((res) => {
         setData(res.data.data);
@@ -97,6 +100,7 @@ export function useApi<T>(url: string, options?: AxiosRequestConfig) {
       })
       .catch(async (err: AxiosError<{ message: string }>) => {
         setIsError(true);
+        setIsLoading(false);
         setError(
           err?.response?.data?.message ||
             err?.message ||
@@ -117,5 +121,5 @@ export function useApi<T>(url: string, options?: AxiosRequestConfig) {
     };
   }, []);
 
-  return { data, isLoading, isError, error, status };
+  return { data, isLoading, isError, error, status, refetch: fetchAPI };
 }

@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/providers/auth-provider";
 import {
   BarChartHorizontalIcon,
   CircleUserRound,
@@ -6,6 +7,7 @@ import {
   KeyboardIcon,
   LibraryBigIcon,
   MessageSquareReply,
+  ShieldHalfIcon,
   StarIcon,
   WalletCardsIcon,
 } from "lucide-react";
@@ -99,6 +101,7 @@ export function Sidebar({
   className?: string;
   mobileOpen?: boolean;
 }) {
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
 
   const handleMouseEnter = useCallback(() => setOpen(true), []);
@@ -131,6 +134,20 @@ export function Sidebar({
             </li>
           ))}
         </ul>
+        {user && user.role === "admin" ? (
+          <ul key={"bottom"} className="border-t border-border">
+            <li>
+              <SidebarItem
+                to="/admin/modules"
+                icon={<ShieldHalfIcon width={"20px"} height={"20px"} />}
+                open={open}
+                label="Admin"
+              />
+            </li>
+          </ul>
+        ) : (
+          ""
+        )}
       </div>
     </aside>
   );

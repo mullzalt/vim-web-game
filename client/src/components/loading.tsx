@@ -5,7 +5,7 @@ export function Spinner({ className }: { className?: string }) {
     <div
       role="status"
       className={cn(
-        "bg-black/20 flex w-full h-full items-center justify-center",
+        " flex w-full h-full items-center justify-center",
         className,
       )}
     >

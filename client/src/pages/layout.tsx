@@ -11,11 +11,11 @@ export default function RootLayout() {
     window.scrollTo(0, 0);
   }, [pathname]);
   return (
-    <AuthProvider>
-      <ThemeProvider defaultTheme="dark">
+    <ThemeProvider defaultTheme="dark">
+      <AuthProvider>
         <Outlet />
         <Toaster />
-      </ThemeProvider>
-    </AuthProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
