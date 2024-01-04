@@ -18,6 +18,7 @@ import {
   StarIcon,
   UserIcon,
 } from "lucide-react";
+import { LevelBar, PlayerStatus } from "../profile/player-status";
 
 export function UserAvatar() {
   const { user, signOut } = useAuth();
@@ -51,6 +52,9 @@ export function UserAvatar() {
           <div className="flex flex-col -space-y-1">
             <div className="text-xl font-semibold">{user.Profile.username}</div>
             <div className="text-sm text-muted">{user.email}</div>
+          </div>
+          <div className="my-2 border-y py-2">
+            <LevelBar exp={user.Profile.exp} />
           </div>
         </SheetHeader>
         <div className="grid gap-2 my-4">

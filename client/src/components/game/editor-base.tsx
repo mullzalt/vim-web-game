@@ -1,4 +1,10 @@
-import { forwardRef, memo, useImperativeHandle, useRef } from "react";
+import {
+  forwardRef,
+  memo,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+} from "react";
 import {
   EditorView,
   EditorState,
@@ -14,17 +20,21 @@ import { cn } from "@/lib/utils";
 import { vimMode } from "@/lib/codemirror/cm-vim";
 import { lineNumbersRelative } from "@/lib/codemirror/cm-relative-line-number";
 
-interface VimEditorProps
-  extends Omit<
-      React.HTMLAttributes<HTMLDivElement>,
-      "onChange" | "placeholder"
-    >,
-    Omit<UseEditor, "container"> {
-  lang?: LanguageName | null;
-  onQuit?: () => void;
-  onWrite?: (state: EditorState, extensions: Extension[]) => void;
-  onRestart?: (state: EditorState, extensions: Extension[]) => void;
-}
+type VimEditorProps = Omit<
+  React.HTMLAttributes<HTMLDivElement>,
+  "onChange" | "placeholder"
+> &
+  Omit<UseEditor, "container" | "onCreateEditor"> & {
+    lang?: LanguageName | null;
+    onQuit?: () => void;
+    onWrite?: (state: EditorState, extensions: Extension[]) => void;
+    onRestart?: (state: EditorState, extensions: Extension[]) => void;
+    onCreateEditor?: (
+      view: EditorView,
+      state: EditorState,
+      extensions: Extension[],
+    ) => void;
+  };
 
 export interface VimEditorRef {
   editor?: HTMLDivElement | null;
@@ -88,7 +98,6 @@ const ReactVimEditor = forwardRef<VimEditorRef, VimEditorProps>(
       editable,
       readOnly,
       selection,
-      onCreateEditor,
       onUpdate,
       extensions: [
         vimMode,
@@ -129,6 +138,11 @@ const ReactVimEditor = forwardRef<VimEditorRef, VimEditorProps>(
       if (!state) return;
       onRestart && onRestart(state, defaultExtensions);
     });
+
+    useEffect(() => {
+      if (!view || !state) return;
+      onCreateEditor && onCreateEditor(view, state, defaultExtensions);
+    }, [state, container, view]);
 
     useImperativeHandle(
       ref,

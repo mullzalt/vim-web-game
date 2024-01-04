@@ -50,7 +50,7 @@ const items: SidebarItemProps[] = [
 
 const items_action: SidebarItemProps[] = [
   {
-    to: "/leaderboard",
+    to: "/sandbox",
     icon: <WalletCardsIcon width={"20px"} height={"20px"} />,
     label: "Sandbox",
   },
