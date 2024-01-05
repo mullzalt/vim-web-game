@@ -17,5 +17,12 @@ router.post(
   validate(createGameSchema),
   gameController.POST,
 );
+router.put(
+  "/:id",
+  deserializeUser,
+  requireUser,
+  validate(createGameSchema),
+  gameController.PUT,
+);
 
 export default router;

@@ -1,17 +1,13 @@
-import { VimGame } from "@/components/game/editor-game";
 import { TooltipMain } from "@/components/tooltip-main";
 import { Button } from "@/components/ui/button";
-import { GameModule } from "@/lib/vim-game";
 import {
   ArrowRightIcon,
   CalendarIcon,
   Code2Icon,
-  KeyboardIcon,
   PlayCircleIcon,
-  PlayIcon,
   StarIcon,
 } from "lucide-react";
-import { Fragment, useMemo } from "react";
+import { Fragment } from "react";
 
 function ModuleListMinimal() {
   return (

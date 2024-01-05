@@ -80,17 +80,17 @@ export const GameStatisticChart = forwardRef<
 >((props, ref) => {
   const {
     times = [],
-    time_total = 0,
-    time_scores = [],
-    time_scores_total = 0,
+    timeTotal = 0,
+    timeScores = [],
+    timeScoreTotal = 0,
     keystrokes = [],
-    keystroke_total = 0,
-    keystroke_scores = [],
-    keystroke_scores_total = 0,
-    total_score = 0,
-    grade_time = 0,
-    grade_keystroke = 0,
-    grade_overall = 0,
+    keystrokeTotal = 0,
+    keystrokeScores = [],
+    keystrokeScoreTotal = 0,
+    totalScore = 0,
+    gradeTime = 0,
+    gradeKeystroke = 0,
+    gradeOverall = 0,
     className,
     ...other
   } = props;
@@ -138,7 +138,7 @@ export const GameStatisticChart = forwardRef<
       <div className="flex flex-col justify-center gap-4 border-border border-2 rounded-md p-4">
         <div className="flex items-center gap-4">
           <span>Score:</span>
-          <span className="font-black text-2xl">{total_score}</span>
+          <span className="font-black text-2xl">{totalScore}</span>
         </div>
         <div className="flex items-center gap-4">
           <span>Times:</span>
@@ -148,14 +148,14 @@ export const GameStatisticChart = forwardRef<
         </div>
         <div className="flex items-center gap-4">
           <span>Keystrokes:</span>
-          <span className="font-black text-xl">{keystroke_total}</span>
+          <span className="font-black text-xl">{keystrokeTotal}</span>
         </div>
       </div>
       <div className="grid grid-cols-4 gap-2 border-border border-2 rounded-md p-4 ">
         <div className="col-span-1 flex flex-col w-full h-full justify-center items-center">
-          <span>Overall Grade ({grade_overall}): </span>
+          <span>Overall Grade ({gradeOverall}): </span>
           <span className="text-6xl italic font-black">
-            {assignGrade(grade_overall).grade}
+            {assignGrade(gradeOverall).grade}
           </span>
         </div>
         <div className="col-span-3">
@@ -170,11 +170,11 @@ export const GameStatisticChart = forwardRef<
               datasets: [
                 {
                   label: "Time Score",
-                  data: time_scores,
+                  data: timeScores,
                 },
                 {
                   label: "Keystrokes Score",
-                  data: keystroke_scores,
+                  data: keystrokeScores,
                 },
               ],
             }}
@@ -184,9 +184,9 @@ export const GameStatisticChart = forwardRef<
 
       <div className="grid grid-cols-4 gap-2 border-border border-2 rounded-md p-4">
         <div className="col-span-1 flex flex-col w-full h-full justify-center items-center">
-          <span>Time Grade ({grade_time}): </span>
+          <span>Time Grade ({gradeTime}): </span>
           <span className="text-6xl italic font-black">
-            {assignGrade(grade_time).grade}
+            {assignGrade(gradeTime).grade}
           </span>
         </div>
         <div className="col-span-3">
@@ -211,9 +211,9 @@ export const GameStatisticChart = forwardRef<
 
       <div className="grid grid-cols-4 gap-2 border-border border-2 rounded-md p-4">
         <div className="col-span-1 flex flex-col w-full h-full justify-center items-center">
-          <span>Keystroke Grade ({grade_keystroke}): </span>
+          <span>Keystroke Grade ({gradeKeystroke}): </span>
           <span className="text-6xl italic font-black">
-            {assignGrade(grade_keystroke).grade}
+            {assignGrade(gradeKeystroke).grade}
           </span>
         </div>
         <div className="col-span-3">

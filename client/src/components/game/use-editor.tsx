@@ -142,6 +142,8 @@ export function useEditor(props: UseEditor) {
       closeBracketsKeymap: false,
       highlightSelectionMatches: false,
       highlightActiveLine: false,
+      syntaxHighlighting: false,
+      highlightSpecialChars: false,
     },
   });
 

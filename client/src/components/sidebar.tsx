@@ -31,12 +31,12 @@ const items: SidebarItemProps[] = [
   {
     to: "/learn",
     icon: <KeyboardIcon width={"20px"} height={"20px"} />,
-    label: "Learn",
+    label: "Tutorial",
   },
   {
     to: "/modules",
     icon: <LibraryBigIcon width={"20px"} height={"20px"} />,
-    label: "Module",
+    label: "Learn",
   },
   {
     to: "/test",
@@ -127,7 +127,7 @@ export function Sidebar({
             </li>
           ))}
         </ul>
-        <ul key={"bottom"} className="border-t border-border">
+        <ul className="border-t border-border">
           {items_action.map((item, i) => (
             <li key={i}>
               <SidebarItem {...item} open={open} />
@@ -135,7 +135,7 @@ export function Sidebar({
           ))}
         </ul>
         {user && user.role === "admin" ? (
-          <ul key={"bottom"} className="border-t border-border">
+          <ul className="border-t border-border">
             <li>
               <SidebarItem
                 to="/admin/modules"

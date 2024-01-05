@@ -1,5 +1,5 @@
 import { Spinner } from "@/components/loading";
-import { useApi, useApiCallback } from "@/hooks/use-api";
+import { useApiCallback } from "@/hooks/use-api";
 import { UserData } from "@/stores/user-types";
 import React, { useContext } from "react";
 import { toast } from "sonner";
@@ -40,26 +40,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
   );
 
   React.useEffect(() => {
-    if (!Cookie.get("logged_in")) {
-      setIsFetching(false);
-      return;
-    }
     getUser();
   }, []);
 
   React.useEffect(() => {
-    if (!data) return;
-
-    setUser(data);
-  }, [data]);
-
-  React.useEffect(() => {
-    if (!Cookie.get("logged_in")) {
+    if (!data) {
       setIsFetching(false);
       return;
     }
-    setIsFetching(isLoading);
-  }, [isLoading]);
+
+    setIsFetching(false);
+    setUser(data);
+  }, [data]);
 
   const value: AuthProviderState = React.useMemo(
     () => ({

@@ -9,25 +9,25 @@ export const enum GAME_MODULE_ACTION {
 }
 
 type ModuleState = {
-  initial_code: string;
-  current_index: number;
-  current_code_after: string;
-  current_code_before: string;
-  last_code_after: string;
+  initialCode: string;
+  currentIndex: number;
+  currentCodeAfter: string;
+  currentCodeBefore: string;
+  lastCodeAfter: string;
   actions: GameAction[];
 };
 
 export function initializeModuleState(props: {
-  initial_code?: string;
+  initialCode?: string;
   actions?: GameAction[];
 }): ModuleState {
-  const { initial_code = "", actions = [] } = props;
+  const { initialCode = "", actions = [] } = props;
   return {
-    initial_code,
-    current_index: -1,
-    current_code_after: initial_code,
-    current_code_before: initial_code,
-    last_code_after: initial_code,
+    initialCode: initialCode,
+    currentIndex: -1,
+    currentCodeAfter: initialCode,
+    currentCodeBefore: initialCode,
+    lastCodeAfter: initialCode,
     actions,
   };
 }
@@ -68,9 +68,9 @@ export const moduleReducer: React.Reducer<ModuleState, ModuleAction> = (
         actions: state.actions.concat({
           action: "select",
           selection: { head: 0, anchor: 0 },
-          intended_keystrokes: 1,
+          intendedKeystrokes: 1,
         }),
-        current_index: state.actions.length,
+        currentIndex: state.actions.length,
       };
     }
 
@@ -79,10 +79,10 @@ export const moduleReducer: React.Reducer<ModuleState, ModuleAction> = (
         ...state,
         actions: state.actions.concat({
           action: "modify",
-          after: state.last_code_after,
-          intended_keystrokes: 1,
+          after: state.lastCodeAfter,
+          intendedKeystrokes: 1,
         }),
-        current_index: state.actions.length,
+        currentIndex: state.actions.length,
       };
     }
 
@@ -93,25 +93,28 @@ export const moduleReducer: React.Reducer<ModuleState, ModuleAction> = (
       if (index < 0 || index > state.actions.length - 1) return state;
 
       const { before, after } = getCodeFromActions(
-        state.initial_code,
+        state.initialCode,
         state.actions,
       )[index];
 
       return {
         ...state,
-        current_code_before: before,
-        current_code_after: after,
-        current_index: index,
+        currentCodeBefore: before,
+        currentCodeAfter: after,
+        currentIndex: index,
       };
     }
 
     case GAME_MODULE_ACTION.UPDATE_CURRENT_ACTION: {
       if (!action.payload?.module_action) return state;
       const { module_action } = action.payload;
-      const { actions, current_index } = state;
-      let { current_code_after, last_code_after } = state;
+      const { actions, currentIndex: current_index } = state;
+      let {
+        currentCodeAfter: current_code_after,
+        lastCodeAfter: last_code_after,
+      } = state;
 
-      if (current_index < 0 || current_index >= actions.length) return;
+      if (current_index < 0 || current_index >= actions.length) return state;
 
       const update: GameAction[] = [
         ...actions.slice(0, current_index),
@@ -130,7 +133,12 @@ export const moduleReducer: React.Reducer<ModuleState, ModuleAction> = (
         last_code_after = module_action.after;
       }
 
-      return { ...state, actions: update, current_code_after, last_code_after };
+      return {
+        ...state,
+        actions: update,
+        currentCodeAfter: current_code_after,
+        lastCodeAfter: last_code_after,
+      };
     }
 
     case GAME_MODULE_ACTION.REMOVE_CURRENT_INDEX: {
@@ -138,7 +146,7 @@ export const moduleReducer: React.Reducer<ModuleState, ModuleAction> = (
       const { index } = action.payload;
 
       if (index < 0 || index > state.actions.length - 1) return state;
-      const { actions, current_index } = state;
+      const { actions, currentIndex: current_index } = state;
       const update: GameAction[] = [
         ...actions.slice(0, index),
         ...actions.slice(index + 1),
@@ -146,7 +154,7 @@ export const moduleReducer: React.Reducer<ModuleState, ModuleAction> = (
       return {
         ...state,
         actions: update,
-        current_index: current_index === index ? -1 : current_index,
+        currentIndex: current_index === index ? -1 : current_index,
       };
     }
   }

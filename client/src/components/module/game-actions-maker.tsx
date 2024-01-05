@@ -27,22 +27,23 @@ import { Label } from "../ui/label";
 import { TooltipMain } from "../tooltip-main";
 import { Input } from "../ui/input";
 import { LanguageName } from "@uiw/codemirror-extensions-langs";
+import { Textarea } from "../ui/textarea";
 
 interface ModuleActionMakerProps extends GameModule {
   onSave?: (actions: GameAction[]) => void;
 }
 
 export function ModuleActionMaker(props: ModuleActionMakerProps) {
-  const { initial_code, actions, lang, onSave } = props;
-  const [current_selection, set_current_selection] = useState<{
+  const { initialCode, actions, lang, onSave } = props;
+  const [currentSelection, setCurrentSelection] = useState<{
     anchor: number;
     head: number;
-  }>();
-  const [error, set_error] = useState<string>();
-  const [current_action, set_current_action] = useState<GameAction>();
+  }>({ anchor: 0, head: 0 });
+  const [error, setError] = useState<string>();
+  const [currentAction, setCurrentAction] = useState<GameAction>();
   const [state, dispatch] = useReducer(
     moduleReducer,
-    initializeModuleState({ initial_code, actions }),
+    initializeModuleState({ initialCode, actions }),
   );
 
   const editorRef = useRef<VimEditorRef>(null);
@@ -76,123 +77,120 @@ export function ModuleActionMaker(props: ModuleActionMakerProps) {
   const handleIntendedKeystrokeChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       e.preventDefault();
-      if (!current_action) return;
+      if (!currentAction) return;
 
       dispatch({
         type: GAME_MODULE_ACTION.UPDATE_CURRENT_ACTION,
         payload: {
           module_action: {
-            ...current_action,
-            intended_keystrokes: Math.max(Number(e.target.value), 1),
+            ...currentAction,
+            intendedKeystrokes: Math.max(Number(e.target.value), 1),
           },
         },
       });
     },
-    [current_action, state.current_index],
+    [currentAction, state.currentIndex],
   );
   const handleHintChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       e.preventDefault();
-      if (!current_action) return;
+      if (!currentAction) return;
 
       dispatch({
         type: GAME_MODULE_ACTION.UPDATE_CURRENT_ACTION,
         payload: {
           module_action: {
-            ...current_action,
+            ...currentAction,
             hints: e.target.value.length > 0 ? e.target.value : undefined,
           },
         },
       });
     },
-    [state.current_index, current_action],
+    [state.currentIndex, currentAction],
   );
 
   const handleActionUpdate = useCallback(
     (vu: ViewUpdate) => {
       if (!vu.selectionSet && !vu.docChanged && !vu.viewportChanged) return;
-      if (!current_action) return;
+      if (!currentAction) return;
 
       if (vu.selectionSet) {
         const { anchor, head } = vu.state.selection.main;
-        set_current_selection({ anchor, head });
+        setCurrentSelection({ anchor, head });
       }
 
       if (
-        current_action.action === "select" &&
-        vu.state.doc.toString() === state.current_code_after
+        currentAction.action === "select" &&
+        vu.state.doc.toString() === state.currentCodeAfter
       ) {
-        set_error(undefined);
+        setError(undefined);
         vu.view.dispatch({
           effects: [filterDecoration.of(() => false), filterTooltip.of(null)],
         });
       }
 
       if (
-        current_action.action === "select" &&
-        vu.state.doc.toString() !== state.current_code_after
+        currentAction.action === "select" &&
+        vu.state.doc.toString() !== state.currentCodeAfter
       ) {
-        updateView(vu.view, current_action, state.current_code_after);
-        set_error("Please do not change the code in selection mode!");
+        updateView(vu.view, currentAction, state.currentCodeAfter);
+        setError("Please do not change the code in selection mode!");
       }
 
       if (
-        current_action.action === "modify" &&
-        state.current_code_after === state.current_code_before
+        currentAction.action === "modify" &&
+        state.currentCodeAfter === state.currentCodeBefore
       ) {
-        set_error(
+        setError(
           "please add a change on modify, otherwise the game will not proceed",
         );
       }
       if (
-        current_action.action === "modify" &&
-        state.current_code_after !== state.current_code_before
+        currentAction.action === "modify" &&
+        state.currentCodeAfter !== state.currentCodeBefore
       ) {
-        set_error(undefined);
+        setError(undefined);
       }
 
-      if (current_action.action === "modify" && vu.docChanged) {
+      if (currentAction.action === "modify" && vu.docChanged) {
         dispatch({
           type: GAME_MODULE_ACTION.UPDATE_CURRENT_ACTION,
           payload: {
             module_action: {
-              ...current_action,
+              ...currentAction,
               after: vu.view.state.doc.toString(),
             },
           },
         });
       }
     },
-    [current_action, state.current_code_before, state.current_code_after],
+    [currentAction, state.currentCodeBefore, state.currentCodeAfter],
   );
 
   const handleUpdateSelection = useCallback(() => {
-    if (!current_action) return;
-    if (current_action.action !== "select") return;
+    if (!currentAction) return;
+    if (currentAction.action !== "select") return;
     dispatch({
       type: GAME_MODULE_ACTION.UPDATE_CURRENT_ACTION,
       payload: {
-        module_action: { ...current_action!, selection: current_selection! },
+        module_action: { ...currentAction!, selection: currentSelection! },
       },
     });
     editorRef.current?.view?.focus();
-  }, [current_selection, current_action, state.current_index]);
+  }, [currentSelection, currentAction, state.currentIndex]);
 
   useEffect(() => {
     onSave && onSave(state.actions);
   }, [state.actions]);
 
   useEffect(() => {
-    if (
-      state.current_index < 0 ||
-      state.current_index >= state.actions.length
-    ) {
-      set_current_action(undefined);
+    if (state.currentIndex < 0 || state.currentIndex >= state.actions.length) {
+      setCurrentAction(undefined);
       return;
     }
 
-    set_current_action(state.actions[state.current_index]);
-  }, [state.actions, state.current_index, state.current_code_before]);
+    setCurrentAction(state.actions[state.currentIndex]);
+  }, [state.actions, state.currentIndex, state.currentCodeBefore]);
 
   useEffect(() => {
     previewRef.current?.view &&
@@ -200,38 +198,34 @@ export function ModuleActionMaker(props: ModuleActionMakerProps) {
         changes: {
           from: 0,
           to: previewRef.current.view.state.doc.length,
-          insert: state.current_code_before,
+          insert: state.currentCodeBefore,
         },
       });
-  }, [
-    state.current_code_after,
-    state.current_code_before,
-    state.last_code_after,
-  ]);
+  }, [state.currentCodeAfter, state.currentCodeBefore, state.lastCodeAfter]);
 
   useEffect(() => {
     if (!previewRef.current?.view) return;
-    if (state.current_index < 0 || state.current_index >= state.actions.length)
+    if (state.currentIndex < 0 || state.currentIndex >= state.actions.length)
       return;
 
     updateView(
       previewRef.current.view,
-      state.actions[state.current_index],
-      state.current_code_before,
+      state.actions[state.currentIndex],
+      state.currentCodeBefore,
     );
-  }, [state.actions, state.current_index, state.current_code_before]);
+  }, [state.actions, state.currentIndex, state.currentCodeBefore]);
 
   return (
     <Fragment>
       <div className="flex gap-2 w-full p-4">
         <div className="grid grow grid-cols-2 gap-2">
           <div className="flex flex-col gap-2">
-            {current_action && current_action.action === "select" ? (
+            {currentAction && currentAction.action === "select" ? (
               <Fragment>
                 <div className="flex justify-between items-center">
                   <span>
-                    Current Selection: ({current_selection?.anchor},{" "}
-                    {current_selection?.head})
+                    Current Selection: ({currentSelection?.anchor},{" "}
+                    {currentSelection?.head})
                   </span>
                   <span>
                     <Button variant={"outline"} onClick={handleUpdateSelection}>
@@ -241,8 +235,8 @@ export function ModuleActionMaker(props: ModuleActionMakerProps) {
                 </div>
                 <div className="flex justify-between items-center">
                   <span>
-                    Action Selection: ({current_action.selection?.anchor},{" "}
-                    {current_action.selection?.head})
+                    Action Selection: ({currentAction.selection?.anchor},{" "}
+                    {currentAction.selection?.head})
                   </span>
                 </div>
               </Fragment>
@@ -257,13 +251,12 @@ export function ModuleActionMaker(props: ModuleActionMakerProps) {
           </div>
 
           <div className="flex flex-col gap-2">
-            {current_action && (
+            {currentAction && (
               <Fragment>
                 <div className="grid grid-cols-2 items-center justify-end">
                   <Label>Hints</Label>
-                  <Input
-                    type="text"
-                    value={current_action?.hints || ""}
+                  <Textarea
+                    value={currentAction?.hints || ""}
                     onChange={handleHintChange}
                   />
                 </div>
@@ -274,7 +267,7 @@ export function ModuleActionMaker(props: ModuleActionMakerProps) {
                   <Input
                     type="number"
                     min={1}
-                    value={current_action.intended_keystrokes}
+                    value={currentAction.intendedKeystrokes}
                     onChange={handleIntendedKeystrokeChange}
                   />
                 </div>
@@ -287,7 +280,7 @@ export function ModuleActionMaker(props: ModuleActionMakerProps) {
             className="text-base"
             extensions={[decorationField, tooltipExtension]}
             onUpdate={handleActionUpdate}
-            value={state.current_code_after || initial_code}
+            value={state.currentCodeAfter || initialCode}
             lang={lang as LanguageName}
           />
           <VimEditor
@@ -297,7 +290,7 @@ export function ModuleActionMaker(props: ModuleActionMakerProps) {
             readOnly
             height="40vh"
             className="text-base opacity-80"
-            value={initial_code}
+            value={initialCode}
             lang={lang as LanguageName}
           />
         </div>
@@ -331,7 +324,7 @@ export function ModuleActionMaker(props: ModuleActionMakerProps) {
                     action.action === "select"
                       ? "bg-primary text-primary-foreground border-primary"
                       : "bg-accent text-accent-foreground border-accent",
-                    i !== state.current_index &&
+                    i !== state.currentIndex &&
                       "text-foreground bg-transparent",
                   )}
                   onClick={() => handleSelectAction(i)}

@@ -3,26 +3,7 @@ import { prisma } from "../../utils/prisma";
 import { RequestError } from "../../utils/error";
 import { GameInput } from "../../schemas/game.schema";
 import { Prisma, User } from "@prisma/client";
-
-function paginate(page: string = "1", size: string = "10") {
-  const _page = Math.max(1, parseInt(page as string));
-  const _size = Math.max(1, parseInt(size as string));
-  const skip = (_page - 1) * _size;
-  const take = _size;
-
-  return {
-    skip,
-    take,
-    current_page: _page,
-  };
-}
-
-function count_paginate({ take, count }: { take: number; count: number }) {
-  return {
-    total_items: count,
-    total_page: Math.ceil(count / take),
-  };
-}
+import { count_paginate, paginate } from "../../utils/paginate";
 
 async function GET_BY_ID(req: Request, res: Response, next: NextFunction) {
   try {
@@ -37,6 +18,50 @@ async function GET_BY_ID(req: Request, res: Response, next: NextFunction) {
             Profile: true,
           },
         },
+      },
+    });
+
+    if (!game) {
+      return next(new RequestError(404, "Game module not found."));
+    }
+
+    return res.status(200).json({
+      status: "success",
+      data: game,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function PUT(
+  req: Request<{ id: string }, {}, GameInput>,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const { id } = req.params;
+
+    const {
+      title,
+      shortDesc,
+      lang,
+      actions,
+      desc,
+      initialCode,
+      intendedKeystrokes,
+    } = req.body;
+
+    const game = await prisma.game.update({
+      where: { id },
+      data: {
+        title,
+        shortDesc,
+        lang,
+        actions,
+        desc,
+        initialCode,
+        intendedKeystrokes,
       },
     });
 
@@ -89,10 +114,12 @@ async function GET(req: Request, res: Response, next: NextFunction) {
 
     return res.status(200).json({
       status: "success",
-      data: game,
-      current_page,
-      total_page,
-      total_items,
+      data: {
+        current_page,
+        total_page,
+        total_items,
+        rows: game,
+      },
     });
   } catch (error) {
     next(error);
@@ -107,18 +134,11 @@ async function POST(
   try {
     const user = res.locals.user as User;
 
-    const body = req.body;
-
     const game = await prisma.game.create({
       data: {
-        title: body.title,
+        ...req.body,
         favoriteCount: 0,
-        shortDesc: body.short_desc,
-        desc: body.desc,
-        initialCode: body.initial_code,
         playCount: 0,
-        actions: body.actions,
-        intendedKeystrokes: body.intended_keystrokes || 0,
         createdBy: user.id,
       },
     });
@@ -135,5 +155,6 @@ async function POST(
 export default {
   GET,
   GET_BY_ID,
+  PUT,
   POST,
 };

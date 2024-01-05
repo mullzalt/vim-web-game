@@ -32,7 +32,7 @@ export function updateView(
       addDecoration.of([
         Decoration.mark({
           class: "border-2 border-yellow-400",
-        }).range(Math.min(anchor, max), Math.min(head, max)),
+        }).range(Math.min(anchor, max - 1), Math.min(head, max)),
       ]),
     );
   }

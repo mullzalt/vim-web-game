@@ -1,9 +1,5 @@
 import { GameModule, GameStatisticData } from "@/schema/game-module";
-import {
-  GAME_ACTION,
-  game_reducer,
-  initialize_game_state,
-} from "./game-reducer";
+import { GAME_ACTION, game_reducer, initializeGameState } from "./game-reducer";
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { VimEditor, VimEditorRef } from "../game/editor-base";
 import {
@@ -33,6 +29,7 @@ import {
   KeyboardIcon,
   LightbulbIcon,
   Repeat2Icon,
+  SparkleIcon,
   TargetIcon,
 } from "lucide-react";
 import { formatTime } from "@/lib/format-time";
@@ -43,11 +40,19 @@ export function GameEditor(
     onQuit?: () => void;
   },
 ) {
-  const { initial_code, title = "", actions, lang, onQuit, onWinning } = props;
+  const {
+    initialCode,
+    title = "",
+    actions,
+    lang,
+    intendedKeystrokes,
+    onQuit,
+    onWinning,
+  } = props;
 
-  const initial_state = initialize_game_state({
-    initial_code,
-    total_progress: actions.length,
+  const initial_state = initializeGameState({
+    initialCode,
+    totalProgress: actions.length,
   });
 
   const editor_ref = useRef<VimEditorRef>(null);
@@ -80,7 +85,7 @@ export function GameEditor(
 
     view.setState(
       EditorState.create({
-        doc: initial_code,
+        doc: initialCode,
         selection: { anchor: 0, head: 0 },
         extensions: extensions,
       }),
@@ -110,7 +115,7 @@ export function GameEditor(
   const handleKeydown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       if (actions.length < 1) return;
-      if (!state.is_playing) {
+      if (!state.isPlaying) {
         if (e.altKey || e.shiftKey || e.ctrlKey || e.key === "Escape") return;
         dispatch({ type: GAME_ACTION.START });
         dispatch({ type: GAME_ACTION.ADD_KEYSTROKE });
@@ -119,47 +124,47 @@ export function GameEditor(
 
       dispatch({ type: GAME_ACTION.ADD_KEYSTROKE });
     },
-    [state.is_playing],
+    [state.isPlaying],
   );
 
   const handleUpdate = useCallback(
     (vu: ViewUpdate) => {
       if (!vu.selectionSet && !vu.docChanged && !vu.viewportChanged) return;
 
-      if (!state.is_playing) return;
+      if (!state.isPlaying) return;
 
       if (vu.docChanged)
         updateView(
           vu.view,
-          actions[state.current_progress],
-          state.current_safe_code,
+          actions[state.currentProgress],
+          state.currentSafeCode,
         );
 
       if (
         is_action_valid(
           vu,
-          actions[state.current_progress],
-          state.current_safe_code,
+          actions[state.currentProgress],
+          state.currentSafeCode,
         )
       ) {
         dispatch({
           type: GAME_ACTION.NEXT,
           payload: {
-            intended_keystrokes:
-              actions[state.current_progress].intended_keystrokes,
+            intendedKeystrokes:
+              actions[state.currentProgress].intendedKeystrokes,
           },
         });
         dispatch({
           type: GAME_ACTION.SET_CURRENT_SAFE_CODE,
-          payload: { current_safe_code: vu.view.state.doc.toString() },
+          payload: { currentSafeCode: vu.view.state.doc.toString() },
         });
       }
     },
-    [state.is_playing, state.current_progress, state.current_safe_code],
+    [state.isPlaying, state.currentProgress, state.currentSafeCode],
   );
 
   useEffect(() => {
-    if (!state.is_playing) return;
+    if (!state.isPlaying) return;
 
     const intervalId = setInterval(
       () => dispatch({ type: GAME_ACTION.ADD_TIME }),
@@ -167,13 +172,13 @@ export function GameEditor(
     );
 
     return () => clearInterval(intervalId);
-  }, [state.is_playing]);
+  }, [state.isPlaying]);
 
   useEffect(() => {
     if (actions.length < 1) return;
     if (!view) return;
 
-    if (state.is_winning) {
+    if (state.isWinning) {
       view.dispatch({
         effects: [filterDecoration.of(() => false), filterTooltip.of(null)],
       });
@@ -185,7 +190,7 @@ export function GameEditor(
       return;
     }
 
-    const action = actions[state.current_progress];
+    const action = actions[state.currentProgress];
 
     if (action.hints) {
       set_current_hint(action.hints);
@@ -193,40 +198,46 @@ export function GameEditor(
       set_current_hint(undefined);
     }
 
-    updateView(view, action, state.current_safe_code);
+    updateView(view, action, state.currentSafeCode);
     return () => {};
   }, [
     view,
-    state.is_playing,
-    state.is_winning,
-    state.current_progress,
-    state.current_safe_code,
+    state.isPlaying,
+    state.isWinning,
+    state.currentProgress,
+    state.currentSafeCode,
   ]);
 
   useEffect(() => {
-    if (!state.is_winning) return;
+    if (!state.isWinning) return;
 
-    const total_keystrokes_score = state.keystroke_scores.reduce(
+    const keystrokeTotal = state.keystrokes.reduce((a, b) => a + b, 0);
+    const timeTotal = state.times.reduce((a, b) => a + b, 0);
+    const totalKeystrokeScore = state.keystrokeScores.reduce(
       (a, b) => a + b,
       0,
     );
-    const total_times_score = state.time_scores.reduce((a, b) => a + b, 0);
+    const totalTimeScore = state.timeScores.reduce((a, b) => a + b, 0);
+    const OPTIMUM_TIME = intendedKeystrokes * 15
+
+
+      const gradeTime= Math.floor(OPTIMUM_TIME / timeTotal * 100)
+      const gradeKeystroke= Math.floor(intendedKeystrokes / keystrokeTotal * 100)
+
     const stats: GameStatisticData = {
       times: state.times,
-      time_total: state.times.reduce((a, b) => a + b, 0),
-      time_scores: state.time_scores,
-      time_scores_total: total_times_score,
+      timeTotal,
+      timeScores: state.timeScores,
+      timeScoreTotal: totalTimeScore,
       keystrokes: state.keystrokes,
-      keystroke_total: state.keystrokes.reduce((a, b) => a + b, 0),
-      keystroke_scores: state.keystroke_scores,
-      keystroke_scores_total: total_keystrokes_score,
-      total_score: total_keystrokes_score + total_times_score,
-      grade_time: Math.floor(total_times_score / state.total_progress),
-      grade_keystroke: Math.floor(
-        total_keystrokes_score / state.total_progress,
-      ),
-      grade_overall: Math.floor(
-        (total_keystrokes_score + total_times_score) / 2 / state.total_progress,
+      keystrokeTotal,
+      keystrokeScores: state.keystrokeScores,
+      keystrokeScoreTotal: totalKeystrokeScore,
+      totalScore: totalKeystrokeScore + totalTimeScore,
+      gradeTime,
+      gradeKeystroke,
+      gradeOverall: Math.floor(
+        ( gradeTime + gradeKeystroke ) / 2
       ),
     };
     set_statistic(stats);
@@ -234,20 +245,20 @@ export function GameEditor(
     onWinning && onWinning(stats);
 
     return () => {};
-  }, [state.is_winning]);
+  }, [state.isWinning]);
 
   //update feedback
   useEffect(() => {
     if (!view) return;
-    if (state.keystroke_scores.length < 1) return;
+    if (state.keystrokeScores.length < 1) return;
 
     view.dispatch({
       effects: [
         addFeedback.of({
           pos: view.state.selection.main.anchor,
           score:
-            state.keystroke_scores[state.keystroke_scores.length - 1] +
-            state.time_scores[state.time_scores.length - 1],
+            state.keystrokeScores[state.keystrokeScores.length - 1] +
+            state.timeScores[state.timeScores.length - 1],
         }),
       ],
     });
@@ -259,7 +270,7 @@ export function GameEditor(
     }, 800);
 
     return () => clearTimeout(delay);
-  }, [state.keystroke_scores, state.time_scores]);
+  }, [state.keystrokeScores, state.timeScores]);
 
   return (
     <div className="grid gap-8">
@@ -283,24 +294,30 @@ export function GameEditor(
             </div>
           )}
           <div className="p-4 gap-2 min-w-28 flex items-center border-border border-2 rounded-lg">
+            {/* {intendedKeystrokes}, {intendedKeystrokes * 15} */}
+            <SparkleIcon/>
+            {state.timeScores.reduce((a,b) => a + b, 0) + state.keystrokeScores.reduce((a,b) => a + b, 0)}
+          </div>
+          <div className="p-4 gap-2 min-w-28 flex items-center border-border border-2 rounded-lg">
             <Clock3Icon />
             {formatTime(
-              state.times.reduce((a, b) => a + b, 0) + state.current_time,
+              state.times.reduce((a, b) => a + b, 0) + state.currentTime,
             )}
           </div>
           <div className="p-4 gap-2 min-w-28 flex items-center border-border border-2 rounded-lg">
             <KeyboardIcon />
             {state.keystrokes.reduce((a, b) => a + b, 0) +
-              state.current_keystroke}
+              state.currentKeystroke}
           </div>
           <div className="p-4 gap-2 min-w-28 flex items-center border-border border-2 rounded-lg">
-            <TargetIcon /> {state.current_progress}/{state.total_progress}
+            <TargetIcon /> {state.currentProgress}/{state.totalProgress}
           </div>
         </div>
       </div>
       <VimEditor
         ref={editor_ref}
-        value={initial_code}
+        value={initialCode}
+        autoFocus
         className="text-lg"
         height="60vh"
         lang={lang as LanguageName}
@@ -309,10 +326,11 @@ export function GameEditor(
         extensions={[decorationField, tooltipExtension, feedbackField]}
         onRestart={handleRestart}
         onUpdate={handleUpdate}
+        onQuit={handleQuit}
         onKeyDownCapture={handleKeydown}
       />
       {/* <pre>{JSON.stringify(state, null, 2)}</pre> */}
-      {state.is_winning && (
+      {state.isWinning && (
         <GameStatisticChart ref={statistic_ref} {...statistic} />
       )}
       <div className="flex justify-end items-center gap-4">

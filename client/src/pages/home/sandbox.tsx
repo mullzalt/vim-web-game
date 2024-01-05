@@ -1,6 +1,7 @@
 import { VimEditor } from "@/components/game/editor-base";
 import { ModuleActionMaker } from "@/components/module/game-actions-maker";
 import { GameEditor } from "@/components/module/game-editor";
+import { LanguageList } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MarkDownReader } from "@/components/ui/markdown";
@@ -20,8 +21,8 @@ export function SandboxPage(props: {
       title: "Test title",
       actions: [],
       desc: `use \`<kbd>key</kbd>\` to insert a new <kbd>key</kbd> keyboard indicator`,
-      initial_code: "console.log('hello world!')",
-      short_desc: "short desc",
+      initialCode: "console.log('hello world!')",
+      shortDesc: "short desc",
       lang: "jsx",
     },
   );
@@ -44,8 +45,19 @@ export function SandboxPage(props: {
 
     setGameModule((prev) => ({ ...prev, desc: vu.view.state.doc.toString() }));
   }, []);
-  const handleSave = useCallback((a: GameAction[]) => {
-    setGameModule((prev) => ({ ...prev, actions: a }));
+  const handleActionUpdate = useCallback((a: GameAction[]) => {
+    setGameModule((prev) => ({
+      ...prev,
+      actions: a,
+      intendedKeystrokes: a.reduce((a, b) => a + b.intendedKeystrokes, 0),
+    }));
+  }, []);
+
+  const handleLangChange = useCallback((value: LanguageName | null) => {
+    setGameModule((prev) => ({
+      ...prev,
+      lang: value,
+    }));
   }, []);
 
   const handleInitialCodeChange = useCallback((vu: ViewUpdate) => {
@@ -53,7 +65,7 @@ export function SandboxPage(props: {
 
     setGameModule((prev) => ({
       ...prev,
-      initial_code: vu.view.state.doc.toString(),
+      initialCode: vu.view.state.doc.toString(),
     }));
   }, []);
 
@@ -85,8 +97,8 @@ export function SandboxPage(props: {
               </Label>
               <Input
                 id="short_desc"
-                name="short_desc"
-                value={gameModule.short_desc}
+                name="shortDesc"
+                value={gameModule.shortDesc}
                 onChange={handleInputChange}
               />
 
@@ -108,25 +120,29 @@ export function SandboxPage(props: {
                 {gameModule.title}
               </h2>
               <p className="text-base text-muted tracking-tight">
-                {gameModule.short_desc}
+                {gameModule.shortDesc}
               </p>
               <MarkDownReader markdown={gameModule.desc} />
             </div>
           </div>
         </TabsContent>
         <TabsContent value="initial_code">
-          <div className="p-8">
+          <div className="p-8 flex flex-col gap-8">
+            <div className="flex items-center gap-4">
+              <span>Select a language</span>
+              <LanguageList onChange={handleLangChange} />
+            </div>
             <VimEditor
               lang={gameModule.lang as LanguageName}
               className="text-base"
               height="30em"
               onUpdate={handleInitialCodeChange}
-              value={gameModule.initial_code}
+              value={gameModule.initialCode}
             />
           </div>
         </TabsContent>
         <TabsContent value="actions">
-          <ModuleActionMaker {...gameModule} onSave={handleSave} />
+          <ModuleActionMaker {...gameModule} onSave={handleActionUpdate} />
         </TabsContent>
         <TabsContent value="json">
           <div className="p-4">
@@ -134,7 +150,21 @@ export function SandboxPage(props: {
               Community Module builder comming soon...
             </div>
             <pre className="text-wrap max-h-[60vh] overflow-y-scroll border-2 rounded-lg p-2">
-              {JSON.stringify(gameModule, null, 2)}
+              {JSON.stringify(
+                {
+                  ...gameModule,
+                  createdAt: undefined,
+                  archived: undefined,
+                  createdBy: undefined,
+                  creator: undefined,
+                  updatedAt: undefined,
+                  playCount: undefined,
+                  favoriteCount: undefined,
+                  id: undefined,
+                },
+                null,
+                2,
+              )}
             </pre>
           </div>
         </TabsContent>

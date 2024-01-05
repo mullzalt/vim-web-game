@@ -8,45 +8,43 @@ export const enum GAME_ACTION {
 }
 
 type GameState = {
-  initial_code: string;
-  current_safe_code: string;
+  initialCode: string;
+  currentSafeCode: string;
   times: number[];
   keystrokes: number[];
-  keystroke_scores: number[];
-  time_scores: number[];
-  current_time: number;
-  current_keystroke: number;
-  is_playing: boolean;
-  is_winning: boolean;
-  current_progress: number;
-  total_progress: number;
+  keystrokeScores: number[];
+  timeScores: number[];
+  currentTime: number;
+  currentKeystroke: number;
+  isPlaying: boolean;
+  isWinning: boolean;
+  currentProgress: number;
+  totalProgress: number;
 };
 
-export function initialize_game_state({
-  initial_code = "",
-  total_progress = 0,
+export function initializeGameState({
+  initialCode = "",
+  totalProgress = 0,
 }: Partial<GameState>): GameState {
   return {
-    initial_code,
-    current_safe_code: initial_code,
+    initialCode,
+    currentSafeCode: initialCode,
     times: [],
     keystrokes: [],
-    keystroke_scores: [],
-    time_scores: [],
-    current_time: 0,
-    current_keystroke: 0,
-    is_playing: false,
-    is_winning: false,
-    current_progress: 0,
-    total_progress,
+    keystrokeScores: [],
+    timeScores: [],
+    currentTime: 0,
+    currentKeystroke: 0,
+    isPlaying: false,
+    isWinning: false,
+    currentProgress: 0,
+    totalProgress: totalProgress,
   };
 }
 
-// type GameState = ReturnType<typeof initialGameState>;
-
 type GameAction = {
   type: GAME_ACTION;
-  payload?: Partial<GameState> & { intended_keystrokes?: number };
+  payload?: Partial<GameState> & { intendedKeystrokes?: number };
 };
 
 function calculate_keystroke_score(
@@ -68,68 +66,68 @@ export const game_reducer: React.Reducer<GameState, GameAction> = (
 ) => {
   switch (action.type) {
     case GAME_ACTION.START: {
-      if (state.is_playing || state.is_winning) return state;
-      return { ...state, is_playing: true };
+      if (state.isPlaying || state.isWinning) return state;
+      return { ...state, isPlaying: true };
     }
     case GAME_ACTION.RESTART: {
       let payload = {};
       if (action.payload) {
-        const { intended_keystrokes, ...rest } = action.payload;
+        const { intendedKeystrokes, ...rest } = action.payload;
         payload = rest;
       }
       return action.payload ? { ...state, ...payload } : state;
     }
     case GAME_ACTION.NEXT: {
-      if (!state.is_playing) return state;
+      if (!state.isPlaying) return state;
 
-      const intended_keystrokes: number =
-        action.payload?.intended_keystrokes || 10;
+      const intendedKeystrokes: number =
+        action.payload?.intendedKeystrokes || 10;
       const {
         times,
-        current_time,
+        currentTime,
         keystrokes,
-        current_keystroke,
-        keystroke_scores,
-        time_scores,
+        currentKeystroke,
+        keystrokeScores,
+        timeScores,
       } = state;
       let return_states = {
         ...state,
-        times: times.concat(current_time),
-        current_time: 0,
-        keystroke_scores: keystroke_scores.concat(
-          calculate_keystroke_score(current_keystroke, intended_keystrokes),
+        times: times.concat(currentTime),
+        currentTime: 0,
+        keystrokeScores: keystrokeScores.concat(
+          calculate_keystroke_score(currentKeystroke, intendedKeystrokes),
         ),
-        time_scores: time_scores.concat(
-          calculate_time_score(current_time, intended_keystrokes),
+        timeScores: timeScores.concat(
+          calculate_time_score(currentTime, intendedKeystrokes),
         ),
-        keystrokes: keystrokes.concat(current_keystroke),
-        current_keystroke: 0,
-        current_progress: state.current_progress + 1,
+        keystrokes: keystrokes.concat(currentKeystroke),
+        currentKeystroke: 0,
+        currentProgress: state.currentProgress + 1,
       };
 
-      if (state.current_progress >= state.total_progress - 1) {
+      if (state.currentProgress >= state.totalProgress - 1) {
         return {
           ...return_states,
-          is_playing: false,
-          is_winning: true,
+          isPlaying: false,
+          isWinning: true,
         };
       }
 
       return return_states;
     }
     case GAME_ACTION.ADD_TIME: {
-      if (!state.is_playing) return state;
-      return { ...state, current_time: state.current_time + 1 };
+      if (!state.isPlaying) return state;
+      return { ...state, currentTime: state.currentTime + 1 };
     }
     case GAME_ACTION.SET_CURRENT_SAFE_CODE: {
-      if (!state.is_playing) return state;
-      if (!action.payload?.current_safe_code) return state;
-      const { current_safe_code } = action.payload;
-      return { ...state, current_safe_code };
+      if (!state.isPlaying) return state;
+      if (!action.payload?.currentSafeCode) return state;
+      const { currentSafeCode } = action.payload;
+      return { ...state, currentSafeCode };
     }
     case GAME_ACTION.ADD_KEYSTROKE: {
-      if (!state.is_playing) return state;
-      return { ...state, current_keystroke: state.current_keystroke + 1 };
+      if (!state.isPlaying) return state;
+      return { ...state, currentKeystroke: state.currentKeystroke + 1 };
     }
     default: {
       return state;
