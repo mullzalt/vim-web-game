@@ -1,4 +1,5 @@
 import { GameModule } from "@/schema/game-module";
+import { UserData } from "./user-types";
 
 export interface GameModuleRequest extends GameModule {
   id: string;
@@ -32,4 +33,35 @@ export type GetManyRequest<T> = {
   total_page: number;
   total_items: number;
   rows: T[];
+};
+
+export type ScoreRequest = {
+  id: string;
+  totalScore: number;
+  grade: number;
+  user: UserData;
+  times: number[];
+  keystrokes: number[];
+};
+
+export type ScoreResult = {
+  prevBest: {
+    times: number[];
+    keystrokes: number[];
+    totalScore: number;
+    grade: number;
+  };
+  current: {
+    times: number[];
+    keystrokes: number[];
+    totalScore: number;
+    grade: number;
+  };
+  statsIncrease: {
+    exp: number;
+    totalScore: number;
+    totalGrade: number;
+  };
+  isPersonalBest: boolean;
+  isNew: boolean;
 };

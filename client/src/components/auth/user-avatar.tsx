@@ -15,15 +15,50 @@ import {
   InfoIcon,
   LogOutIcon,
   MailIcon,
+  SaveIcon,
   StarIcon,
   UserIcon,
 } from "lucide-react";
 import { LevelBar, PlayerStatus } from "../profile/player-status";
+import { Input } from "../ui/input";
+import { useApiCallback } from "@/hooks/use-api";
+import { toast } from "sonner";
 
 export function UserAvatar() {
-  const { user, signOut } = useAuth();
+  const [isEditting, setIsEditting] = React.useState(false);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const { user, signOut, refetch } = useAuth();
+  const [update, { isLoading, isError, error, isSuccess }] =
+    useApiCallback("me");
 
   if (!user) return <div>loading...</div>;
+
+  const handleSave = React.useCallback(() => {
+    const username = inputRef.current?.value;
+
+    if (!username || username === user.Profile.username) {
+      setIsEditting(false);
+      return;
+    }
+
+    update({
+      method: "put",
+      data: {
+        username: username.trim(),
+      },
+    });
+  }, []);
+
+  React.useEffect(() => {
+    inputRef.current?.focus();
+    return () => {};
+  }, [isError]);
+
+  React.useEffect(() => {
+    setIsEditting(false);
+    refetch();
+    return () => {};
+  }, [isSuccess]);
 
   return (
     <Sheet>
@@ -49,8 +84,23 @@ export function UserAvatar() {
               {user.Profile.username[0].toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          <div className="flex flex-col -space-y-1">
-            <div className="text-xl font-semibold">{user.Profile.username}</div>
+          <div className="flex flex-col gap-2 ">
+            {isEditting ? (
+              <div className="flex flex-col gap-2">
+                <Input
+                  ref={inputRef}
+                  autoFocus
+                  defaultValue={user.Profile.username}
+                />
+                {error && (
+                  <div className="text-destructive text-sm">{error}</div>
+                )}
+              </div>
+            ) : (
+              <div className="text-xl font-semibold">
+                {user.Profile.username}
+              </div>
+            )}
             <div className="text-sm text-muted">{user.email}</div>
           </div>
           <div className="my-2 border-y py-2">
@@ -58,15 +108,34 @@ export function UserAvatar() {
           </div>
         </SheetHeader>
         <div className="grid gap-2 my-4">
-          <Button className="justify-start text-base gap-2" variant={"ghost"}>
-            <UserIcon className="w-4 h-4" /> <span>My Profile</span>
-          </Button>
-          <Button className="justify-start text-base gap-2" variant={"ghost"}>
-            <Edit2Icon className="w-4 h-4" /> <span>Edit Profile</span>
-          </Button>
-          <Button className="justify-start text-base gap-2" variant={"ghost"}>
-            <CogIcon className="w-4 h-4" /> <span>Settings</span>
-          </Button>
+          {isEditting ? (
+            <div className="grid grid-cols-4 gap-4">
+              <Button
+                className="justify-center text-base gap-2 col-span-3"
+                variant={"secondary"}
+                onClick={handleSave}
+                disabled={isLoading}
+              >
+                <SaveIcon className="w-4 h-4" /> <span>Save</span>
+              </Button>
+
+              <Button
+                className="text-base gap-2 hover:bg-destructive hover:text-destructive-foreground"
+                variant={"ghost"}
+                onClick={() => setIsEditting(false)}
+              >
+                <span>Cancel</span>
+              </Button>
+            </div>
+          ) : (
+            <Button
+              className="justify-start text-base gap-2"
+              variant={"ghost"}
+              onClick={() => setIsEditting(true)}
+            >
+              <Edit2Icon className="w-4 h-4" /> <span>Edit Profile</span>
+            </Button>
+          )}
           <Button
             onClick={signOut}
             className="justify-start text-base gap-2"

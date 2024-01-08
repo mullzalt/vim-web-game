@@ -12,16 +12,6 @@ export function Navbar({ action }: { action?: React.ReactNode }) {
         {action}
         <span>vi-word.</span>
       </div>
-      <div className="hidden justify-end grow px-8 lg:flex items-center">
-        {user && (
-          <div className="max-w-64">
-            <LevelBar
-              exp={user.Profile.exp}
-              className="grid-cols-2 items-center w-full"
-            />
-          </div>
-        )}
-      </div>
       <div className="flex gap-2 items-center">
         {user ? <UserAvatar /> : <SignInAction />}
       </div>

@@ -20,7 +20,7 @@ function GameCollection(props: GameCollectionRequest) {
 }
 export function LearnPage() {
   const { data, isLoading } =
-    useApi<GetManyRequest<GameCollectionRequest>>("/learns");
+    useApi<GetManyRequest<GameCollectionRequest>>("learns");
 
   if (!data || isLoading) {
     return <Spinner />;

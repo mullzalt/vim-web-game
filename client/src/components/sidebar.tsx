@@ -20,6 +20,7 @@ interface SidebarItemProps {
   label?: React.ReactNode;
   open?: boolean;
   className?: string;
+  hidden?: boolean;
 }
 
 const items: SidebarItemProps[] = [
@@ -38,11 +39,11 @@ const items: SidebarItemProps[] = [
     icon: <LibraryBigIcon width={"20px"} height={"20px"} />,
     label: "Learn",
   },
-  {
-    to: "/test",
-    icon: <StarIcon width={"20px"} height={"20px"} />,
-    label: "Favorite",
-  },
+  // {
+  //   to: "/test",
+  //   icon: <StarIcon width={"20px"} height={"20px"} />,
+  //   label: "Favorite",
+  // },
   {
     to: "/leaderboard",
     icon: <BarChartHorizontalIcon width={"20px"} height={"20px"} />,
@@ -61,11 +62,6 @@ const items_action: SidebarItemProps[] = [
     icon: <MessageSquareReply width={"20px"} height={"20px"} />,
     label: "Leave a Feedback",
   },
-  {
-    to: "/settings",
-    icon: <CircleUserRound width={"20px"} height={"20px"} />,
-    label: "Profile",
-  },
 ];
 
 function SidebarItem({
@@ -74,6 +70,7 @@ function SidebarItem({
   label,
   className,
   open = false,
+  hidden = false,
 }: SidebarItemProps) {
   const { pathname } = useLocation();
 
@@ -86,6 +83,7 @@ function SidebarItem({
         pathname === to &&
           "text-primary/80  pointer-events-none outline-primary/80 border-primary/80",
         className,
+        hidden && "hidden",
       )}
     >
       <span className="ml-4">{icon}</span>

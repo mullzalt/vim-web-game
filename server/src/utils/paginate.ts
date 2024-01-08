@@ -1,13 +1,11 @@
-export function paginate(page: string = "1", size: string = "10") {
-  const _page = Math.max(1, parseInt(page as string));
-  const _size = Math.max(1, parseInt(size as string));
-  const skip = (_page - 1) * _size;
-  const take = _size;
+export function paginate(page: number = 1, size: number = 10) {
+  const skip = (page - 1) * size;
+  const take = size;
 
   return {
     skip,
     take,
-    current_page: _page,
+    current_page: page,
   };
 }
 

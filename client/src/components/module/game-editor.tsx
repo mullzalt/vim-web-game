@@ -38,6 +38,9 @@ export function GameEditor(
   props: GameModule & {
     onWinning?: (stats: GameStatisticData) => void;
     onQuit?: () => void;
+    children?: React.ReactNode;
+    onStart?: () => void;
+    onRestart?: () => void;
   },
 ) {
   const {
@@ -48,6 +51,9 @@ export function GameEditor(
     intendedKeystrokes,
     onQuit,
     onWinning,
+    onStart,
+    onRestart,
+    children,
   } = props;
 
   const initial_state = initializeGameState({
@@ -94,6 +100,8 @@ export function GameEditor(
     set_statistic(undefined);
     dispatch({ type: GAME_ACTION.RESTART, payload: initial_state });
 
+    onRestart && onRestart();
+
     view.focus();
   }, [view, extensions]);
 
@@ -119,6 +127,7 @@ export function GameEditor(
         if (e.altKey || e.shiftKey || e.ctrlKey || e.key === "Escape") return;
         dispatch({ type: GAME_ACTION.START });
         dispatch({ type: GAME_ACTION.ADD_KEYSTROKE });
+        onStart && onStart();
         return;
       }
 
@@ -184,7 +193,7 @@ export function GameEditor(
       });
       statistic_ref.current?.scrollIntoView({
         behavior: "smooth",
-        block: "end",
+        block: "start",
       });
 
       return;
@@ -218,11 +227,12 @@ export function GameEditor(
       0,
     );
     const totalTimeScore = state.timeScores.reduce((a, b) => a + b, 0);
-    const OPTIMUM_TIME = intendedKeystrokes * 15
+    const OPTIMUM_TIME = intendedKeystrokes * 20;
 
-
-      const gradeTime= Math.floor(OPTIMUM_TIME / timeTotal * 100)
-      const gradeKeystroke= Math.floor(intendedKeystrokes / keystrokeTotal * 100)
+    const gradeTime = Math.floor((OPTIMUM_TIME / timeTotal) * 100);
+    const gradeKeystroke = Math.floor(
+      (intendedKeystrokes / keystrokeTotal) * 100,
+    );
 
     const stats: GameStatisticData = {
       times: state.times,
@@ -236,9 +246,7 @@ export function GameEditor(
       totalScore: totalKeystrokeScore + totalTimeScore,
       gradeTime,
       gradeKeystroke,
-      gradeOverall: Math.floor(
-        ( gradeTime + gradeKeystroke ) / 2
-      ),
+      gradeOverall: Math.floor((gradeTime + gradeKeystroke) / 2),
     };
     set_statistic(stats);
 
@@ -287,16 +295,10 @@ export function GameEditor(
           <span className="font-semibold text-lg">{title}</span>
         </div>
         <div className="flex items-center justify-end gap-4">
-          {current_hint && (
-            <div className="p-4 flex items-center gap-2 text-sm font-semibold border border-accent bg-accent/40 rounded-md">
-              <LightbulbIcon />
-              {current_hint}
-            </div>
-          )}
           <div className="p-4 gap-2 min-w-28 flex items-center border-border border-2 rounded-lg">
-            {/* {intendedKeystrokes}, {intendedKeystrokes * 15} */}
-            <SparkleIcon/>
-            {state.timeScores.reduce((a,b) => a + b, 0) + state.keystrokeScores.reduce((a,b) => a + b, 0)}
+            <SparkleIcon />
+            {state.timeScores.reduce((a, b) => a + b, 0) +
+              state.keystrokeScores.reduce((a, b) => a + b, 0)}
           </div>
           <div className="p-4 gap-2 min-w-28 flex items-center border-border border-2 rounded-lg">
             <Clock3Icon />
@@ -314,6 +316,13 @@ export function GameEditor(
           </div>
         </div>
       </div>
+
+      {current_hint && (
+        <div className="p-4 flex items-center gap-2 text-sm font-semibold border border-accent bg-accent/40 rounded-md">
+          <LightbulbIcon />
+          {current_hint}
+        </div>
+      )}
       <VimEditor
         ref={editor_ref}
         value={initialCode}
@@ -329,7 +338,7 @@ export function GameEditor(
         onQuit={handleQuit}
         onKeyDownCapture={handleKeydown}
       />
-      {/* <pre>{JSON.stringify(state, null, 2)}</pre> */}
+      {children}
       {state.isWinning && (
         <GameStatisticChart ref={statistic_ref} {...statistic} />
       )}

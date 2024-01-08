@@ -39,4 +39,14 @@ export const createGameSchema = object({
   }),
 });
 
+export const scoreSchema = object({
+  body: object({
+    times: array(number()),
+    keystrokes: array(number()),
+    totalScore: number(),
+    grade: number(),
+  }),
+});
+
 export type GameInput = TypeOf<typeof createGameSchema>["body"];
+export type ScoreInput = TypeOf<typeof scoreSchema>["body"];

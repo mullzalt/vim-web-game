@@ -34,7 +34,7 @@ export function HomeLayout() {
         />
         <section
           className={cn(
-            "flex flex-col relative w-full ",
+            "flex flex-col relative w-full h-full",
             mobileOpen && "ml-16",
           )}
         >

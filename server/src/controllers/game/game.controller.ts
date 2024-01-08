@@ -4,6 +4,7 @@ import { RequestError } from "../../utils/error";
 import { GameInput } from "../../schemas/game.schema";
 import { Prisma, User } from "@prisma/client";
 import { count_paginate, paginate } from "../../utils/paginate";
+import { GetQueryScema } from "../../schemas/url-query.schema";
 
 async function GET_BY_ID(req: Request, res: Response, next: NextFunction) {
   try {
@@ -78,16 +79,17 @@ async function PUT(
   }
 }
 
-async function GET(req: Request, res: Response, next: NextFunction) {
+async function GET(
+  req: Request<{}, {}, {}, GetQueryScema & { show_archived: string }>,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const { page, size, show_archived } = req.query;
 
-    const { take, skip, current_page } = paginate(
-      page as string,
-      size as string,
-    );
+    const { take, skip, current_page } = paginate(Number(page), Number(size));
 
-    const where = JSON.parse((show_archived as string) || "false")
+    const where = JSON.parse(show_archived || "false")
       ? {}
       : { archived: false };
 
