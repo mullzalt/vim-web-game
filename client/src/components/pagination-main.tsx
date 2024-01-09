@@ -7,7 +7,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 
 const range = (start: number, end: number) => {
   let length = end - start + 1;
@@ -26,14 +26,7 @@ export function PaginationMain(props: {
   sibling?: number;
   onChange?: (page: number) => void;
 }) {
-  const {
-    currentPage,
-    totalItems,
-    totalPage,
-    size,
-    sibling = 1,
-    onChange,
-  } = props;
+  const { currentPage, totalPage, sibling = 1, onChange } = props;
 
   const paginationRange = useMemo<number[]>(() => {
     const shownPage = sibling + 5;

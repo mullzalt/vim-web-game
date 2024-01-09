@@ -3,10 +3,9 @@ import { ModuleListMinimal } from "@/components/module/module-list";
 import { PaginationMain } from "@/components/pagination-main";
 import { useApi } from "@/hooks/use-api";
 import { GameCollectionRequest, GetManyRequest } from "@/stores/game-module";
-import { useCallback } from "react";
 
 function GameCollection(props: GameCollectionRequest) {
-  const { title, Games } = props;
+  const { Games } = props;
   return (
     <div className="flex flex-col gap-4 bg-foreground/10  border-2 rounded-lg">
       <div className=" flex gap-2 items-center text-lg font-semibold bg-accent text-accent-foreground p-4 rounded-lg">

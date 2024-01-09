@@ -18,7 +18,7 @@ import { useCallback, useEffect, useState } from "react";
 import { LanguageName, langNames } from "@uiw/codemirror-extensions-langs";
 
 export function LanguageList(props: {
-  onChange?: (value: LanguageName | undefined) => void;
+  onChange?: (value: string | undefined) => void;
 }) {
   const { onChange } = props;
   const [open, setOpen] = useState(false);

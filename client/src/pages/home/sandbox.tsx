@@ -55,10 +55,10 @@ export function SandboxPage(props: {
     }));
   }, []);
 
-  const handleLangChange = useCallback((value: LanguageName | null) => {
+  const handleLangChange = useCallback((value: string | undefined) => {
     setGameModule((prev) => ({
       ...prev,
-      lang: value,
+      lang: value as LanguageName,
     }));
   }, []);
 

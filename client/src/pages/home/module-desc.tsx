@@ -1,6 +1,5 @@
 import { Spinner } from "@/components/loading";
 import { GameEditor } from "@/components/module/game-editor";
-import { TooltipMain } from "@/components/tooltip-main";
 import { Button } from "@/components/ui/button";
 import { MarkDownReader } from "@/components/ui/markdown";
 import { useApi, useApiCallback } from "@/hooks/use-api";
@@ -80,7 +79,7 @@ function ModuleInfo(props: GameModuleRequest) {
 
 function ModuleScores({ id }: { id: string }) {
   const { user } = useAuth();
-  const { data, isLoading, isError, error, status } = useApi<
+  const { data, isLoading, isError } = useApi<
     GetManyRequest<ScoreRequest>
   >(`games/${id}/scores`);
 
@@ -185,9 +184,7 @@ export function ModuleDescPage() {
     winApi,
     {
       data: scoreData,
-      isLoading: winLoading,
       isSuccess: winSuccess,
-      isError: winError,
     },
   ] = useApiCallback<ScoreResult>(`games/${id}/scores`);
   const [isPlaying, setIsPlaying] = useState(false);

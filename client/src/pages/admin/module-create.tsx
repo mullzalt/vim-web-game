@@ -1,9 +1,8 @@
-import { Fragment, useCallback, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect } from "react";
 import { useApi, useApiCallback } from "@/hooks/use-api";
 import { Button } from "@/components/ui/button";
-import { GameModule } from "@/schema/game-module";
 import { Spinner } from "@/components/loading";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { GameModuleRequest, GetManyRequest } from "@/stores/game-module";
 import { PlusIcon } from "lucide-react";
 import { TooltipMain } from "@/components/tooltip-main";
@@ -20,16 +19,8 @@ export function ModuleAdminPage() {
   });
   const navigate = useNavigate();
 
-  const [
-    write,
-    {
-      data: writeData,
-      isLoading: isWriteLoading,
-      isError: isWriteError,
-      error: writeError,
-      isSuccess,
-    },
-  ] = useApiCallback<GameModuleRequest>("games");
+  const [write, { data: writeData, isLoading: isWriteLoading, isSuccess }] =
+    useApiCallback<GameModuleRequest>("games");
 
   const handleWrite = useCallback(() => {
     write({

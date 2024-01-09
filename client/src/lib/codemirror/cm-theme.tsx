@@ -13,8 +13,8 @@ export function useCMTheme(name: ReactCodeMirrorProps["theme"] = "light") {
         ? "dark"
         : "light",
     );
-    document.addEventListener("colorschemechange", (e) => {
-      setTheme(e.detail.colorScheme as ReactCodeMirrorProps["theme"]);
+    document.addEventListener("colorschemechange", (_) => {
+      // setTheme(e.detail.colorScheme as ReactCodeMirrorProps["theme"]);
     });
   }, []);
   return { theme, setTheme };

@@ -3,7 +3,6 @@ import { useApi } from "@/hooks/use-api";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -11,7 +10,6 @@ import {
 } from "@/components/ui/table";
 import { GetManyRequest } from "@/stores/game-module";
 import { UserData } from "@/stores/user-types";
-import { Fragment } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { calculateLevel } from "@/lib/level-system";
 import { cn } from "@/lib/utils";

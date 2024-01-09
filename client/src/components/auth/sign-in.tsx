@@ -1,7 +1,4 @@
-import * as React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useStore } from "@/stores";
-import { LoginInput, loginSchema } from "@/schema/sign-in";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Sheet,

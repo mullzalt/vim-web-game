@@ -18,12 +18,11 @@ import { PlusIcon, TrashIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { updateView } from "@/lib/game/cm-update-view";
 import {
-  addDecoration,
   decorationField,
   filterDecoration,
 } from "@/lib/codemirror/cm-decoration";
 import { filterTooltip, tooltipExtension } from "@/lib/codemirror/cm-tooltip";
-import { Decoration, ViewUpdate } from "@uiw/react-codemirror";
+import { ViewUpdate } from "@uiw/react-codemirror";
 import { Label } from "../ui/label";
 import { TooltipMain } from "../tooltip-main";
 import { Input } from "../ui/input";

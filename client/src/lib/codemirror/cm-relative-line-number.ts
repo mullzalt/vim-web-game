@@ -1,7 +1,5 @@
 import {
-  EditorView,
   Extension,
-  Prec,
   lineNumbers,
 } from "@uiw/react-codemirror";
 

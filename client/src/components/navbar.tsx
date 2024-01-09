@@ -1,8 +1,6 @@
 import { useAuth } from "@/providers/auth-provider";
 import { SignInAction } from "./auth/sign-in";
-import { Avatar } from "./ui/avatar";
 import { UserAvatar } from "./auth/user-avatar";
-import { LevelBar } from "./profile/player-status";
 
 export function Navbar({ action }: { action?: React.ReactNode }) {
   const { user } = useAuth();

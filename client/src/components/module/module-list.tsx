@@ -1,13 +1,9 @@
 import {
   ArrowRightIcon,
-  CalendarIcon,
   CaseLowerIcon,
   Clock3Icon,
-  Code2Icon,
   CodeIcon,
   KeyboardIcon,
-  PlayCircleIcon,
-  StarIcon,
   TargetIcon,
 } from "lucide-react";
 import { buttonVariants } from "../ui/button";

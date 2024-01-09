@@ -10,7 +10,7 @@ const api = axios.create({
   withCredentials: true,
 });
 
-const reqIntercept = api.interceptors.request.use(
+api.interceptors.request.use(
   (config) => {
     if (!config.headers["Authorization"]) {
       config.headers["Authorization"] = `Bearer ${Cookie.get("access_token")}`;
@@ -20,7 +20,7 @@ const reqIntercept = api.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-const resIntercept = api.interceptors.response.use(
+api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const prevRequest = error?.config;

@@ -3,7 +3,6 @@ import { ModuleList } from "@/components/module/module-list";
 import { PaginationMain } from "@/components/pagination-main";
 import { useApi } from "@/hooks/use-api";
 import { GameModuleRequest, GetManyRequest } from "@/stores/game-module";
-import { Link } from "react-router-dom";
 
 export function ModuleMainPage() {
   const { data, isLoading, refetch } = useApi<

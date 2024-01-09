@@ -12,7 +12,7 @@ export function ModuleEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { data, isLoading, isError, error } = useApi<GameModuleRequest>(
+  const { data, isLoading, error } = useApi<GameModuleRequest>(
     `games/${id}`,
   );
   const [write, writeStatus] = useApiCallback<GameModuleRequest>(`games/${id}`);

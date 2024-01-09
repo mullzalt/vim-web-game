@@ -1,6 +1,5 @@
 import { Spinner } from "@/components/loading";
 import { ModuleList, ModuleListMinimal } from "@/components/module/module-list";
-import { TooltipMain } from "@/components/tooltip-main";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useApi } from "@/hooks/use-api";
 import { cn } from "@/lib/utils";
@@ -14,13 +13,14 @@ import { Fragment } from "react";
 import { Link } from "react-router-dom";
 
 export default function LandingPage() {
-  const { data, isLoading, refetch } = useApi<
-    GetManyRequest<GameCollectionRequest>
-  >("learns", {
-    params: {
-      size: 1,
+  const { data, isLoading } = useApi<GetManyRequest<GameCollectionRequest>>(
+    "learns",
+    {
+      params: {
+        size: 1,
+      },
     },
-  });
+  );
   const { data: game, isLoading: gameLoading } = useApi<
     GetManyRequest<GameModuleRequest>
   >("games", {

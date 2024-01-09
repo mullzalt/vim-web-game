@@ -2,13 +2,10 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/providers/auth-provider";
 import {
   BarChartHorizontalIcon,
-  CircleUserRound,
   HomeIcon,
   KeyboardIcon,
-  LibraryBigIcon,
   MessageSquareReply,
   ShieldHalfIcon,
-  StarIcon,
   WalletCardsIcon,
   ZapIcon,
 } from "lucide-react";

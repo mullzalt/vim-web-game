@@ -38,7 +38,7 @@ class lineWidget extends WidgetType {
     return other.text === this.text;
   }
 
-  toDOM(view: EditorView): HTMLElement {
+  toDOM(_: EditorView): HTMLElement {
     let wrap = document.createElement("span");
     wrap.setAttribute("aria-hidden", "true");
     wrap.className =
@@ -52,7 +52,7 @@ class lineWidget extends WidgetType {
     return wrap;
   }
 
-  ignoreEvent(event: Event): boolean {
+  ignoreEvent(_: Event): boolean {
     return false;
   }
 }

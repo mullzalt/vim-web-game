@@ -1,4 +1,3 @@
-import { Navbar } from "@/components/navbar";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/providers/auth-provider";
 import { ThemeProvider } from "@/providers/theme-provider";

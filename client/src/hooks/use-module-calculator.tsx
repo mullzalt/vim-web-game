@@ -27,7 +27,6 @@ export function useModuleCalculator(props: Partial<GameModuleRequest>) {
     });
     const codeLengthMin = Math.min(initialCode.length, ...codeLength);
     const codeLengthMax = Math.max(initialCode.length, ...codeLength);
-    const avgCodeLength = (codeLengthMax + codeLengthMin) / 2;
     const ssKeystroke = intendedKeystrokes;
     const ssTime = Number(((intendedKeystrokes * 20) / 100).toFixed(2));
 
