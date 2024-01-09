@@ -67,7 +67,7 @@ export function ModuleEdit() {
           {writeStatus.isLoading ? "writing..." : "Save Changes"}
         </Button>
       </div>
-      {data && <SandboxPage module={data} onUpdate={handleUpdate} />}
+      {data && <SandboxPage modules={data} onUpdate={handleUpdate} />}
     </Fragment>
   );
 }

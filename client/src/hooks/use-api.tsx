@@ -100,12 +100,14 @@ export function useApi<T>(url: string, options?: AxiosRequestConfig) {
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<number | undefined>();
 
-  const fetchAPI = useCallback(async () => {
+  const fetchAPI = useCallback(async (args?: AxiosRequestConfig) => {
     setIsLoading(true);
     setIsSuccess(false);
     setIsError(false);
     setError(null);
-    await api<{ data: T }>(`/api/${url}`, options)
+
+    setIsSuccess(true);
+    await api<{ data: T }>(`/api/${url}`, { ...options, ...args })
       .then((res) => {
         setIsSuccess(true);
         setData(res.data.data);

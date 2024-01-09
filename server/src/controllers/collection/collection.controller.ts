@@ -19,7 +19,6 @@ async function GET_TUTORIAL(req: Request, res: Response, next: NextFunction) {
     const { page = "1", size = "10" } = req.query;
 
     const { take, skip, current_page } = paginate(Number(page), Number(size));
-    console.log({ take, skip, current_page });
 
     const count = await prisma.gameCollection.count({
       where: {
@@ -33,6 +32,9 @@ async function GET_TUTORIAL(req: Request, res: Response, next: NextFunction) {
       include: {
         Games: true,
       },
+      orderBy: {
+        createdAt: "asc",
+      },
       take,
       skip,
     });
@@ -44,6 +46,7 @@ async function GET_TUTORIAL(req: Request, res: Response, next: NextFunction) {
     return res.status(200).json({
       status: "success",
       data: {
+        size: take,
         current_page,
         total_page,
         total_items,

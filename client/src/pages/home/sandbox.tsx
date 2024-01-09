@@ -12,20 +12,22 @@ import { EditorView, ViewUpdate } from "@uiw/react-codemirror";
 import { useCallback, useEffect, useState } from "react";
 
 export function SandboxPage(props: {
-  module?: GameModule;
+  modules?: GameModule;
   onUpdate?: (game_module: GameModule) => void;
 }) {
-  const { module, onUpdate } = props;
-  const [gameModule, setGameModule] = useState<GameModule>(
-    module || {
+  const {
+    modules = {
       title: "Test title",
       actions: [],
       desc: `use \`<kbd>key</kbd>\` to insert a new <kbd>key</kbd> keyboard indicator`,
       initialCode: "console.log('hello world!')",
       shortDesc: "short desc",
       lang: "jsx",
+      intendedKeystrokes: 0,
     },
-  );
+    onUpdate,
+  } = props;
+  const [gameModule, setGameModule] = useState<GameModule>(modules);
 
   useEffect(() => {
     onUpdate && onUpdate(gameModule);

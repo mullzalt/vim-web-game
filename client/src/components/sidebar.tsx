@@ -10,6 +10,7 @@ import {
   ShieldHalfIcon,
   StarIcon,
   WalletCardsIcon,
+  ZapIcon,
 } from "lucide-react";
 import { useCallback, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -32,12 +33,12 @@ const items: SidebarItemProps[] = [
   {
     to: "/learn",
     icon: <KeyboardIcon width={"20px"} height={"20px"} />,
-    label: "Tutorial",
+    label: "Learn",
   },
   {
     to: "/modules",
-    icon: <LibraryBigIcon width={"20px"} height={"20px"} />,
-    label: "Learn",
+    icon: <ZapIcon width={"20px"} height={"20px"} />,
+    label: "Challenge",
   },
   // {
   //   to: "/test",
@@ -58,7 +59,7 @@ const items_action: SidebarItemProps[] = [
     label: "Sandbox",
   },
   {
-    to: "/leaderboard",
+    to: "/feedback",
     icon: <MessageSquareReply width={"20px"} height={"20px"} />,
     label: "Leave a Feedback",
   },

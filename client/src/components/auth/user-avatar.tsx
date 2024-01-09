@@ -8,7 +8,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Button } from "../ui/button";
+import { Button, buttonVariants } from "../ui/button";
 import {
   CogIcon,
   Edit2Icon,
@@ -23,6 +23,8 @@ import { LevelBar, PlayerStatus } from "../profile/player-status";
 import { Input } from "../ui/input";
 import { useApiCallback } from "@/hooks/use-api";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 export function UserAvatar() {
   const [isEditting, setIsEditting] = React.useState(false);
@@ -145,12 +147,9 @@ export function UserAvatar() {
           </Button>
         </div>
         <div className="grid gap-2 py-4 border-y border-border">
-          <Button className="justify-start text-base gap-2" variant={"ghost"}>
+          <Link target="_blank" to={import.meta.env.VITE_FEEDBACK_URL}  className={cn(buttonVariants({variant: "ghost"}),"justify-start text-base gap-2" )}>
             <StarIcon className="w-4 h-4" /> <span>Leave a feedback</span>
-          </Button>
-          <Button className="justify-start text-base gap-2" variant={"ghost"}>
-            <InfoIcon className="w-4 h-4" /> <span>About</span>
-          </Button>
+          </Link>
         </div>
       </SheetContent>
     </Sheet>

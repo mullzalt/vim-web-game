@@ -85,13 +85,15 @@ async function GET(
   next: NextFunction,
 ) {
   try {
-    const { page, size, show_archived } = req.query;
+    const { page = "1", size = "10", show_archived } = req.query;
 
     const { take, skip, current_page } = paginate(Number(page), Number(size));
 
-    const where = JSON.parse(show_archived || "false")
+    const where: Prisma.GameWhereInput = show_archived
       ? {}
-      : { archived: false };
+      : {
+          archived: false,
+        };
 
     const count = await prisma.game.count({ where });
     const game = await prisma.game.findMany({
@@ -120,6 +122,7 @@ async function GET(
         current_page,
         total_page,
         total_items,
+        size: take,
         rows: game,
       },
     });

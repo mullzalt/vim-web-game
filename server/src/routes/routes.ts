@@ -5,6 +5,7 @@ import auth from "./auth/auth.route";
 import game from "./games/game.route";
 import learn from "../controllers/collection/collection.controller";
 import collection from "./collection/collection.route";
+import leaderboard from "./leaderboard.route";
 
 const router = Router();
 
@@ -14,5 +15,6 @@ router.use("/auth", auth);
 router.use("/games", game);
 router.get("/learns", learn.GET_TUTORIAL);
 router.use("/collections", collection);
+router.use("/leaderboards", leaderboard);
 
 export default router;

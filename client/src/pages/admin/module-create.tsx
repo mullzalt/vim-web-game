@@ -3,32 +3,66 @@ import { useApi, useApiCallback } from "@/hooks/use-api";
 import { Button } from "@/components/ui/button";
 import { GameModule } from "@/schema/game-module";
 import { Spinner } from "@/components/loading";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { GameModuleRequest, GetManyRequest } from "@/stores/game-module";
 import { PlusIcon } from "lucide-react";
 import { TooltipMain } from "@/components/tooltip-main";
 import { ModuleListMinimal } from "@/components/module/module-list";
+import { PaginationMain } from "@/components/pagination-main";
 
 export function ModuleAdminPage() {
-  const [module, setModule] = useState<GameModule>();
-  const { data, isLoading } = useApi<GetManyRequest<GameModuleRequest>>(
-    "games",
-    {
-      params: {
-        show_archived: true,
-      },
+  const { data, isLoading, refetch } = useApi<
+    GetManyRequest<GameModuleRequest>
+  >("games", {
+    params: {
+      show_archived: true,
     },
-  );
+  });
+  const navigate = useNavigate();
 
   const [
     write,
-    { isLoading: isWriteLoading, isError: isWriteError, error: writeError },
+    {
+      data: writeData,
+      isLoading: isWriteLoading,
+      isError: isWriteError,
+      error: writeError,
+      isSuccess,
+    },
   ] = useApiCallback<GameModuleRequest>("games");
 
-  const handleWrite = useCallback(() => {}, [module]);
-  const handleUpdate = useCallback((mod: GameModule) => {
-    setModule(mod);
+  const handleWrite = useCallback(() => {
+    write({
+      method: "post",
+      data: {
+        title: "New Module",
+        initialCode: "console.log('hello world!')",
+        actions: [],
+        intendedKeystrokes: 0,
+        lang: null,
+        desc: "new desc",
+        shortDesc: "shortDesc",
+      },
+    });
   }, []);
+
+  const handlePageChange = useCallback(
+    (page: number) => {
+      refetch({
+        params: {
+          show_archived: true,
+          page,
+        },
+      });
+    },
+    [data],
+  );
+
+  useEffect(() => {
+    if (isSuccess && writeData) {
+      navigate(writeData.id);
+    }
+  }, [isSuccess, writeData]);
 
   if (isLoading || !data) {
     return <Spinner />;
@@ -42,6 +76,13 @@ export function ModuleAdminPage() {
         </h1>
         {data.rows &&
           data.rows.map((mod) => <ModuleListMinimal {...mod} key={mod.id} />)}
+        <PaginationMain
+          totalPage={data.total_page}
+          totalItems={data.total_items}
+          currentPage={data.current_page}
+          size={data.size}
+          onChange={handlePageChange}
+        />
       </div>
       <div className="fixed bottom-12 right-8">
         <TooltipMain tooltip="Create new module">

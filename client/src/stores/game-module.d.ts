@@ -32,6 +32,7 @@ export type GetManyRequest<T> = {
   current_page: number;
   total_page: number;
   total_items: number;
+  size: number;
   rows: T[];
 };
 
@@ -64,4 +65,8 @@ export type ScoreResult = {
   };
   isPersonalBest: boolean;
   isNew: boolean;
+};
+
+export type Leaderboard = UserData["Profile"] & {
+  rank: number;
 };

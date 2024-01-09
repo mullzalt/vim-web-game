@@ -5,7 +5,7 @@ export function Spinner({ className }: { className?: string }) {
     <div
       role="status"
       className={cn(
-        "bg-background flex h-screen z-50 w-full items-center justify-center",
+        "bg-background flex min-h-[80vh] z-50 w-full items-center justify-center",
         className,
       )}
     >

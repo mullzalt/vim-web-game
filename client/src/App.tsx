@@ -10,6 +10,8 @@ import { ModuleAdminPage } from "./pages/admin/module-create";
 import { RequiredAdmin } from "./pages/required-auth";
 import { ModuleEdit } from "./pages/admin/module-edit";
 import { LearnPage } from "./pages/home/learn-main";
+import { LeaderBoardPage } from "./pages/home/leaderboard";
+import { FeedbackPage } from "./pages/home/feedback";
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
           <Route path="modules" element={<ModuleMainPage />} />
           <Route path="modules/:id" element={<ModuleDescPage />} />
           <Route path="sandbox" element={<SandboxPage />} />
+          <Route path="leaderboard" element={<LeaderBoardPage />} />
+          <Route path="feedback" element={<FeedbackPage />} />
           <Route path="admin" element={<RequiredAdmin />}>
             <Route path="modules" element={<ModuleAdminPage />} />
             <Route path="modules/:id" element={<ModuleEdit />} />

@@ -13,13 +13,14 @@ import {
 } from "@/stores/game-module";
 import {
   CaseLowerIcon,
+  ChevronLeftIcon,
   Clock3Icon,
   CodeIcon,
   KeyboardIcon,
   TargetIcon,
 } from "lucide-react";
 import { Fragment, useCallback, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import NotFound from "../not-found";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AvatarImage } from "@radix-ui/react-avatar";
@@ -131,10 +132,12 @@ function ScoreDiff(props: ScoreResult) {
   return (
     <div className="grid text-xs">
       <div className="grid grid-cols-5">
-        <div className={cn(
-          "flex p-4 items-center justify-center border", 
-          current.totalScore > prevBest.totalScore && "bg-green-400/40")
-        }>
+        <div
+          className={cn(
+            "flex p-4 items-center justify-center border",
+            current.totalScore > prevBest.totalScore && "bg-green-400/40",
+          )}
+        >
           Current Stats
         </div>
         <div className="flex p-4 items-center justify-center border">
@@ -189,6 +192,7 @@ export function ModuleDescPage() {
   ] = useApiCallback<ScoreResult>(`games/${id}/scores`);
   const [isPlaying, setIsPlaying] = useState(false);
   const [displayDiff, setDisplayDiff] = useState(false);
+  const navigate = useNavigate();
 
   const handlePlay = useCallback(() => {
     setIsPlaying(true);
@@ -234,7 +238,14 @@ export function ModuleDescPage() {
         <Fragment>
           <div className="grid lg:grid-cols-3 gap-4 container py-8 ">
             <div className="grid col-span-2 gap-4">
-              <h2 className="text-2xl font-bold tracking-tight">
+              <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+                <Button
+                  variant={"ghost"}
+                  size={"icon"}
+                  onClick={() => navigate(-1)}
+                >
+                  <ChevronLeftIcon />
+                </Button>
                 {data.title}
               </h2>
               <h2 className="text-base ">{data.shortDesc}</h2>

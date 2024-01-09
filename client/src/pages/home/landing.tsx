@@ -1,84 +1,41 @@
+import { Spinner } from "@/components/loading";
+import { ModuleList, ModuleListMinimal } from "@/components/module/module-list";
 import { TooltipMain } from "@/components/tooltip-main";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { useApi } from "@/hooks/use-api";
+import { cn } from "@/lib/utils";
 import {
-  ArrowRightIcon,
-  CalendarIcon,
-  Code2Icon,
-  PlayCircleIcon,
-  StarIcon,
-} from "lucide-react";
+  GameCollectionRequest,
+  GameModuleRequest,
+  GetManyRequest,
+} from "@/stores/game-module";
+import { ArrowRightIcon } from "lucide-react";
 import { Fragment } from "react";
-
-function ModuleListMinimal() {
-  return (
-    <div className="grid grid-cols-2 border border-border rounded-md p-4 border-l-8 border-l-accent">
-      <div>
-        <div className="text-lg font-bold">title</div>
-        <div className="text-base text-muted-foreground">
-          Learn how the basic of horizontal and vertical movements in vim.
-        </div>
-      </div>
-      <div className="flex items-center h-full justify-end">
-        <Button variant={"outline"} size={"icon"} className="rounded-full">
-          <ArrowRightIcon />
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-function ModuleList() {
-  return (
-    <div className="flex border rounded-md group ">
-      <div className="group-hover:bg-muted/20 bg-muted/40 flex items-center h-full justify-end px-4 text-lg font-bold text-muted">
-        #1
-      </div>
-      <div className="grid rounded-lg p-4 bg-muted/30 group-hover:bg-muted/5">
-        <div className="text-lg font-bold truncate w-full ">
-          Really long text that should have not appear bla bla bla super super
-          super longggggggggggggg
-        </div>
-        <div className="text-base text-muted-foreground">
-          by{" "}
-          <span className="text-accent hover:underline cursor-pointer">
-            some user
-          </span>
-        </div>
-
-        <div className="text-sm text-muted-foreground flex h-8 items-center gap-4">
-          <TooltipMain tooltip="Favorites: 99">
-            <span className="hidden items-center group-hover:flex">
-              <StarIcon height={12} width={12} className="mr-2" /> 99
-            </span>
-          </TooltipMain>
-          <TooltipMain tooltip="Play count: 99">
-            <span className="hidden items-center group-hover:flex">
-              <PlayCircleIcon height={12} width={12} className="mr-2" /> 99
-            </span>
-          </TooltipMain>
-
-          <TooltipMain tooltip="Added: 99">
-            <span className="hidden items-center group-hover:flex">
-              <CalendarIcon height={12} width={12} className="mr-2" /> 19 Dec
-              2024
-            </span>
-          </TooltipMain>
-        </div>
-
-        <div className="text-sm text-foreground flex items-center gap-4">
-          <TooltipMain tooltip="Difficulty rating: 99">
-            <span className="flex rounded-md border border-foreground px-2 items-center">
-              <Code2Icon height={12} width={12} className="mr-2" />
-              0.2
-            </span>
-          </TooltipMain>
-        </div>
-      </div>
-    </div>
-  );
-}
+import { Link } from "react-router-dom";
 
 export default function LandingPage() {
+  const { data, isLoading, refetch } = useApi<
+    GetManyRequest<GameCollectionRequest>
+  >("learns", {
+    params: {
+      size: 1,
+    },
+  });
+  const { data: game, isLoading: gameLoading } = useApi<
+    GetManyRequest<GameModuleRequest>
+  >("games", {
+    params: {
+      size: 4,
+    },
+  });
+
+  if (gameLoading || !game) {
+    return <Spinner />;
+  }
+
+  if (!data || isLoading) {
+    return <Spinner />;
+  }
   return (
     <Fragment>
       <div className="flex flex-col items-center justify-center py-8 bg-gradient-to-b from-black/20 via-background to-black/10">
@@ -99,22 +56,34 @@ export default function LandingPage() {
       <div className="py-8 px-4">
         <div className="flex justify-between items-center py-2">
           <div className="text-xl font-semibold">Start from the basics</div>
-          <Button
-            className="text-lg flex gap-2 items-center text-foreground"
-            variant={"link"}
+          <Link
+            to={"/learn"}
+            className={cn(
+              buttonVariants({ variant: "link" }),
+              "text-lg flex gap-2 items-center text-foreground",
+            )}
           >
             Explore more <ArrowRightIcon height={"18px"} width={"18px"} />
-          </Button>
+          </Link>
         </div>
         <div className="border-b py-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <ModuleListMinimal />
-          <ModuleListMinimal />
-          <ModuleListMinimal />
-          <ModuleListMinimal />
+          {data.rows.map((collection) => {
+            return (
+              <Fragment key={collection.id}>
+                {collection.Games.map((game) => (
+                  <ModuleListMinimal
+                    key={game.id}
+                    {...game}
+                    route="/modules/"
+                  />
+                ))}
+              </Fragment>
+            );
+          })}
         </div>
 
         <div className="flex mt-4 justify-between items-center py-2">
-          <div className="text-xl font-semibold">Most Played</div>
+          <div className="text-xl font-semibold">Challenge Yourself</div>
           <Button
             className="text-lg flex gap-2 items-center text-foreground"
             variant={"link"}
@@ -123,10 +92,10 @@ export default function LandingPage() {
           </Button>
         </div>
         <div className="border-b py-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <ModuleList />
-          <ModuleList />
-          <ModuleList />
-          <ModuleList />
+          {game.rows &&
+            game.rows.map((mod) => (
+              <ModuleList {...mod} key={mod.id} route="/modules/" />
+            ))}
         </div>
       </div>
     </Fragment>
