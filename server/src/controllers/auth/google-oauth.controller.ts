@@ -95,7 +95,7 @@ export const googleOauthHandler = async (
     });
 
     if (!account_profile) {
-      return res.redirect(`${ORIGIN}/oauth/error`);
+      return res.redirect(`${ORIGIN}/oauth/error?error=prisma_error`);
     }
 
     const { access_token, refresh_token } = await signTokens(user);
@@ -108,7 +108,6 @@ export const googleOauthHandler = async (
 
     res.redirect(`${ORIGIN}${pathUrl}`);
   } catch (err: any) {
-    console.log("Failed to authorize Google User", err);
-    return res.redirect(`${ORIGIN}/oauth/error`);
+    return res.redirect(`${ORIGIN}/oauth/error?error=unknown`);
   }
 };

@@ -26,7 +26,11 @@ async function bootstrap() {
 
   app.use(
     cors({
-      origin: [config.get<string>("origin"), "https://vi-word.up.railway.app"],
+      origin: [
+        config.get<string>("origin"),
+        "http://localhost:3000",
+        "http://localhost:5173",
+      ],
       credentials: true,
     }),
   );
