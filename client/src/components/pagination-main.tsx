@@ -75,40 +75,37 @@ export function PaginationMain(props: {
   return (
     <Pagination className="mt-auto">
       <PaginationContent>
-        <PaginationItem>
-          <PaginationPrevious
-            disabled={currentPage === 1}
-            onClick={() => handleChange(currentPage - 1)}
-          />
-        </PaginationItem>
+        <PaginationPrevious
+          disabled={currentPage === 1}
+          onClick={() => handleChange(currentPage - 1)}
+          key={"prev"}
+        />
 
         {paginationRange.map((page) => {
           if (page < 0) {
             return (
-              <PaginationItem>
+              <PaginationItem key={page}>
                 <PaginationEllipsis />
               </PaginationItem>
             );
           }
 
           return (
-            <PaginationItem>
-              <PaginationLink
-                isActive={page === currentPage}
-                onClick={() => handleChange(page)}
-              >
-                {page}
-              </PaginationLink>
-            </PaginationItem>
+            <PaginationLink
+              key={page}
+              isActive={page === currentPage}
+              onClick={() => handleChange(page)}
+            >
+              {page}
+            </PaginationLink>
           );
         })}
 
-        <PaginationItem>
-          <PaginationNext
-            disabled={currentPage === totalPage}
-            onClick={() => handleChange(currentPage + 1)}
-          />
-        </PaginationItem>
+        <PaginationNext
+          disabled={currentPage === totalPage}
+          onClick={() => handleChange(currentPage + 1)}
+          key={"next"}
+        />
       </PaginationContent>
     </Pagination>
   );

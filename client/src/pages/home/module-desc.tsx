@@ -18,7 +18,7 @@ import {
   KeyboardIcon,
   TargetIcon,
 } from "lucide-react";
-import { Fragment, useCallback, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import NotFound from "../not-found";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -26,6 +26,8 @@ import { AvatarImage } from "@radix-ui/react-avatar";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/providers/auth-provider";
 import { GameStatisticData } from "@/schema/game-module";
+import { AssignGrade } from "@/components/module/game-grade-assign";
+import { calculateLevel } from "@/lib/level-system";
 
 function ModuleInfo(props: GameModuleRequest) {
   const info = useModuleCalculator(props);
@@ -79,9 +81,9 @@ function ModuleInfo(props: GameModuleRequest) {
 
 function ModuleScores({ id }: { id: string }) {
   const { user } = useAuth();
-  const { data, isLoading, isError } = useApi<
-    GetManyRequest<ScoreRequest>
-  >(`games/${id}/scores`);
+  const { data, isLoading, isError } = useApi<GetManyRequest<ScoreRequest>>(
+    `games/${id}/scores`,
+  );
 
   if (isError) {
     return (
@@ -117,7 +119,10 @@ function ModuleScores({ id }: { id: string }) {
 
             <div className="flex items-center justify-between gap-2">
               <span className="font-bold italic">{a.totalScore}</span>
-              <span>{a.grade}</span>
+              <span className="flex gap-2">
+                <AssignGrade className="italic font-black" grade={a.grade} />{" "}
+                {a.grade}
+              </span>
             </div>
           </li>
         ))}
@@ -127,9 +132,37 @@ function ModuleScores({ id }: { id: string }) {
 }
 
 function ScoreDiff(props: ScoreResult) {
-  const { current, prevBest } = props;
+  const { current, prevBest, statsIncrease } = props;
+  const { user } = useAuth();
+  const totalKeystrokes = useMemo(
+    () => ({
+      current: current.keystrokes.reduce((a, b) => a + b, 0),
+      prevBest: prevBest.keystrokes.reduce((a, b) => a + b, 0),
+    }),
+    [current.keystrokes, prevBest.keystrokes],
+  );
+  const totalTime = useMemo(
+    () => ({
+      current: current.times.reduce((a, b) => a + b, 0),
+      prevBest: prevBest.times.reduce((a, b) => a + b, 0),
+    }),
+    [current.times, prevBest.times],
+  );
+  if (!user) return <div></div>;
   return (
     <div className="grid text-xs">
+      <div className="grid grid-cols-5">
+        <div className="flex p-4 items-center justify-center border">
+          {user?.Profile.username} (lvl.{" "}
+          {calculateLevel(user.Profile.exp).level}) + {statsIncrease.exp} exp
+        </div>
+        <div className="flex p-4 col-span-2 items-center justify-center border">
+          Total Score: {user.Profile.totalScore} (+ {statsIncrease.totalScore})
+        </div>
+        <div className="flex p-4 col-span-2 items-center justify-center border">
+          Grade Points: {user.Profile.totalGrade} (+ {statsIncrease.totalGrade})
+        </div>
+      </div>
       <div className="grid grid-cols-5">
         <div
           className={cn(
@@ -139,18 +172,59 @@ function ScoreDiff(props: ScoreResult) {
         >
           Current Stats
         </div>
-        <div className="flex p-4 items-center justify-center border">
-          Score: {current.totalScore}
+        <div
+          className={cn(
+            "flex p-4 items-center justify-center border gap-2",
+            current.totalScore > prevBest.totalScore && "text-green-400",
+          )}
+        >
+          <span>Score: {current.totalScore}</span>
+          <span className="opacity-80">
+            ({current.totalScore > prevBest.totalScore && "+"}
+            {current.totalScore - prevBest.totalScore})
+          </span>
         </div>
-        <div className="flex p-4 items-center justify-center border">
-          Keystrokes: {current.keystrokes.reduce((a, b) => a + b, 0)}
+        <div
+          className={cn(
+            "flex p-4 items-center justify-center border gap-2",
+            totalKeystrokes.current < totalKeystrokes.prevBest &&
+              "text-green-400",
+          )}
+        >
+          <span>Keystroke: {totalKeystrokes.current}</span>
+          <span className="opacity-80">
+            ({totalKeystrokes.current > totalKeystrokes.prevBest && "+"}
+            {totalKeystrokes.current - totalKeystrokes.prevBest})
+          </span>
         </div>
-        <div className="flex p-4 items-center justify-center border">
-          Times: {(current.times.reduce((a, b) => a + b, 0) / 100).toFixed(2)}{" "}
-          seconds
+        <div
+          className={cn(
+            "flex p-4 items-center justify-center border gap-2",
+            totalTime.current < totalTime.prevBest && "text-green-400",
+          )}
+        >
+          <span>Time: {(totalTime.current / 100).toFixed(2)}</span>
+          <span className="opacity-80">
+            ({totalTime.current > totalTime.prevBest && "+"}
+            {((totalTime.current - totalTime.prevBest) / 100).toFixed(2)}) sec
+          </span>
         </div>
-        <div className="flex p-4 items-center justify-center border">
-          Grade: {current.grade}
+        <div
+          className={cn(
+            "flex p-4 items-center justify-center border ",
+            current.grade > prevBest.grade && "text-green-400",
+          )}
+        >
+          Grade:{" "}
+          <AssignGrade
+            className="text-foreground italic font-bold ml-2 mr-1"
+            grade={current.grade}
+          />
+          ({current.grade})
+          <span className="opacity-80 ml-2">
+            ({current.grade > prevBest.grade && "+"}
+            {current.grade - prevBest.grade})
+          </span>
         </div>
       </div>
       <div className="grid grid-cols-5">
@@ -164,10 +238,16 @@ function ScoreDiff(props: ScoreResult) {
           Keystrokes: {prevBest.keystrokes.reduce((a, b) => a + b, 0)}
         </div>
         <div className="flex p-4 items-center justify-center border">
-          Times: {(prevBest.times.reduce((a, b) => a + b, 0) / 100).toFixed(2)}
+          Times: {(prevBest.times.reduce((a, b) => a + b, 0) / 100).toFixed(2)}{" "}
+          seconds
         </div>
-        <div className="flex p-4 items-center justify-center border">
-          Grade: {prevBest.grade}
+        <div className="flex p-4 items-center justify-center border ">
+          Grade:{" "}
+          <AssignGrade
+            className="italic font-bold ml-2 mr-1"
+            grade={prevBest.grade}
+          />
+          ({prevBest.grade})
         </div>
       </div>
     </div>
@@ -180,13 +260,8 @@ export function ModuleDescPage() {
   const { data, isLoading, isError, error, status } = useApi<GameModuleRequest>(
     `games/${id}`,
   );
-  const [
-    winApi,
-    {
-      data: scoreData,
-      isSuccess: winSuccess,
-    },
-  ] = useApiCallback<ScoreResult>(`games/${id}/scores`);
+  const [winApi, { data: scoreData, isSuccess: winSuccess }] =
+    useApiCallback<ScoreResult>(`games/${id}/scores`);
   const [isPlaying, setIsPlaying] = useState(false);
   const [displayDiff, setDisplayDiff] = useState(false);
   const navigate = useNavigate();

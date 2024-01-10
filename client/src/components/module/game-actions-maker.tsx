@@ -3,6 +3,7 @@ import {
   Fragment,
   useCallback,
   useEffect,
+  useMemo,
   useReducer,
   useRef,
   useState,
@@ -40,7 +41,6 @@ export function ModuleActionMaker(props: ModuleActionMakerProps) {
     head: number;
   }>({ anchor: 0, head: 0 });
   const [error, setError] = useState<string>();
-  const [currentAction, setCurrentAction] = useState<GameAction>();
   const [state, dispatch] = useReducer(
     moduleReducer,
     initializeModuleState({ initialCode, actions }),
@@ -48,6 +48,11 @@ export function ModuleActionMaker(props: ModuleActionMakerProps) {
 
   const editorRef = useRef<VimEditorRef>(null);
   const previewRef = useRef<VimEditorRef>(null);
+
+  const currentAction = useMemo(
+    () => state.actions[state.currentIndex],
+    [state.actions, state.currentIndex],
+  );
 
   const handleAddNewSelection = useCallback(() => {
     dispatch({ type: GAME_MODULE_ACTION.ADD_EMPTY_SELECT });
@@ -58,11 +63,14 @@ export function ModuleActionMaker(props: ModuleActionMakerProps) {
   }, [state.actions]);
 
   const handleSelectAction = useCallback(
-    (index: number) =>
+    (index: number) => {
+      editorRef.current?.view?.focus();
       dispatch({
         type: GAME_MODULE_ACTION.SET_CURRENT_ACTION,
         payload: { index },
-      }),
+      });
+    },
+
     [],
   );
 
@@ -185,11 +193,8 @@ export function ModuleActionMaker(props: ModuleActionMakerProps) {
 
   useEffect(() => {
     if (state.currentIndex < 0 || state.currentIndex >= state.actions.length) {
-      setCurrentAction(undefined);
       return;
     }
-
-    setCurrentAction(state.actions[state.currentIndex]);
   }, [state.actions, state.currentIndex, state.currentCodeBefore]);
 
   useEffect(() => {
