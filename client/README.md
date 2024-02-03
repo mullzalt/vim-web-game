@@ -1,30 +1,34 @@
-# React + TypeScript + Vite
+## Client Side Installation
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### Setting up client
 
-Currently, two official plugins are available:
+1.  Install the yarn packages on client side
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+    ```sh
+    cd ./vim-web-game/client && yarn install
+    ```
 
-## Expanding the ESLint configuration
+2.  Copy the `.env.local.example` file and rename to `.env.local` on the server folder
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+    ```sh
+    cp .env.local.example .env.local
+    ```
 
-- Configure the top-level `parserOptions` property like this:
+3.  Configure the `.env.local` file,
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
+    Vite environments value configurations located under `.env.local` file, and use the `VITE_` prefix for accessing it.
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+    - **Setup the API access point**
+
+      Insert your vim-web-game `server` URL for the value to the `VITE_SERVER_ENDPOINT`
+
+    - **Setup the Google Oauth Client**
+
+    Use the same value as previously mentions in [`server`](https://github.com/mullzalt/vim-web-game/client/README.md) Google Oauth client setups.
+
+    The only difference is you insert the values to the `GOOGLE_OAUTH_CLIENT_ID` and `GOOGLE_OAUTH_CLIENT_SECRET` respectively.
+
+4.  Run the application
+    ```sh
+    yarn dev
+    ```
