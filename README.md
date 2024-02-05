@@ -66,8 +66,10 @@
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
+    <li><a href="#diagram">Diagram</a></li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#">Contributing</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
@@ -133,11 +135,19 @@ Make sure these programs are installed on your machine.
 
 #### 2. Setting up server
 
-For the server side installation, refer to this guide [here](https://github.com/mullzalt/vim-web-game/server/README.md)
+For the server side installation, refer to this guide [here](./server/README.md)
 
 #### 3. Setting up client
 
-For the client side installation, refer to this guide [here](https://github.com/mullzalt/vim-web-game/client/README.md)
+For the client side installation, refer to this guide [here](./client/README.md)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- Diagram -->
+
+## Diagram
+
+See the diagrams [here](./assets/diagrams/README.md).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
